@@ -1,3 +1,5 @@
+;;; 01：ウィンドウを表示する
+
 ;; SDL2ライブラリのロード
 (ql:quickload :sdl2)         ; SDL2ライブラリ
 (ql:quickload :sdl2-image)   ; 画像ファイル読み込み、描画関連のライブラリ
