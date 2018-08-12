@@ -20,3 +20,6 @@
 
 ![05](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/Chap01/img/05.png)
 
+## 画像移動
+
+![06](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/Chap01/img/06.png)
