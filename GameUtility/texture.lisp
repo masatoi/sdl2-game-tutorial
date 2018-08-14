@@ -32,6 +32,19 @@
     tex))
 
 ;; レンダリング処理
-(defmethod tex-render (tex x y)
+(defmethod tex-render (tex x y &key clip)
   (with-slots (renderer width height texture) tex
-    (sdl2:render-copy renderer texture :dest-rect (sdl2:make-rect x y width height))))
+    (sdl2:render-copy renderer
+                      texture
+                      :source-rect clip
+                      :dest-rect   (sdl2:make-rect x
+                                                   y
+                                                   (if clip (sdl2:rect-width  clip) width)
+                                                   (if clip (sdl2:rect-height clip) height)))))
+
+(defmethod tex-render2 (tex x y w h &key clip)
+  (with-slots (renderer texture) tex
+    (sdl2:render-copy renderer
+                      texture
+                      :source-rect clip
+                      :dest-rect   (sdl2:make-rect x y w h))))
