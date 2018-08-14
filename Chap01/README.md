@@ -23,3 +23,7 @@
 ## 画像移動
 
 ![06](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/Chap01/img/06.png)
+
+## システムウィンドウ表示
+
+![07](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/Chap01/img/07.png)
