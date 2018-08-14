@@ -12,6 +12,34 @@
 ;; 画像ファイルへのパス
 (defparameter *image-file-path* "../Material/graphics/picture/cat.png")
 
+;; テクスチャクラス
+(defclass class-texture ()
+  ((renderer
+    :initarg  :renderer
+    :initform (error "Must supply a renderer"))
+   (width
+    :initform 0)
+   (height
+    :initform 0)
+   (texture
+    :initform nil)))
+
+;; 画像を読み取る
+(defmethod tex-load-from-file (renderer filepath)
+  (let ((tex (make-instance 'class-texture :renderer renderer)))
+    (with-slots (renderer width height texture) tex
+      (let ((surface (sdl2-image:load-image filepath)))
+        (setf width  (sdl2:surface-width surface))
+        (setf height (sdl2:surface-height surface))
+        (sdl2:set-color-key surface :true (sdl2:map-rgb (sdl2:surface-format surface) 0 0 0))
+        (setf texture (sdl2:create-texture-from-surface renderer surface))))
+    tex))
+
+;; レンダリング処理
+(defmethod tex-render (tex x y)
+  (with-slots (renderer width height texture) tex
+    (sdl2:render-copy renderer texture :dest-rect (sdl2:make-rect x y width height))))
+
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)
   ;; SDLの初期化と終了時の処理をまとめて実行
@@ -40,12 +68,9 @@
 
 (defun main ()
   (with-window-renderer (window renderer)
-    (let* ((surface (sdl2-image:load-image *image-file-path*))           ; 画像ファイル読み込み
-           (texture (sdl2:create-texture-from-surface renderer surface)) ; サーフェイスからテクスチャを生成
-           (width   (sdl2:surface-width  surface))                       ; テキストの幅
-           (height  (sdl2:surface-height surface))                       ; テキストの高さ
-           (x-pos   (- (/ +screen-width+  2) (floor width  2)))          ; テキストの表示位置(X座標)計算
-           (y-pos   (- (/ +screen-height+ 2) (floor height 2))))         ; テキストの表示位置(Y座標)計算
+    (let ((img-tex (tex-load-from-file renderer *image-file-path*))
+          (x-pos 0)    ; 初期X座標
+          (y-pos 0))   ; 初期Y座標
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理
@@ -53,7 +78,7 @@
                   ;; keysymをスキャンコードの数値(scancode-value)に変換して、キー判定処理(scancode=)を行う
                   (if (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-escape)
                       (sdl2:push-event :quit)  ; Escキーが押下された場合、quitイベントをキューに加える
-                      (progn
+                      (with-slots (width height) img-tex
                         (case (sdl2:scancode keysym)
                           (:scancode-up    (when (> y-pos 0) (decf y-pos)))
                           (:scancode-down  (when (< y-pos (- +screen-height+ height)) (incf y-pos)))
@@ -65,7 +90,7 @@
                (sdl2:render-clear renderer)                    ; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
 
                ;; レンダリング処理
-               (sdl2:render-copy renderer texture :dest-rect (sdl2:make-rect x-pos y-pos width height))
+               (tex-render img-tex x-pos y-pos)
                
                (sdl2:render-present renderer))                 ; レンダリングの結果を画面に反映
         ;; 終了イベント

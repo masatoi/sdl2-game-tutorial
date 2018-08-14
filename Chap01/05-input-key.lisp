@@ -12,6 +12,33 @@
 ;; フォントファイルへのパス
 (defparameter *font-file-path* "../Material/fonts/ipaexg.ttf")
 
+;; テクスチャクラス
+(defclass class-texture ()
+  ((renderer
+    :initarg  :renderer
+    :initform (error "Must supply a renderer"))
+   (width
+    :initform 0)
+   (height
+    :initform 0)
+   (texture
+    :initform nil)))
+
+;; 文字列の読み込み
+(defmethod tex-load-from-string (renderer font text)
+  (let ((tex (make-instance 'class-texture :renderer renderer)))
+    (with-slots (renderer width height texture) tex
+      (let ((surface  (sdl2-ttf:render-utf8-solid font text #xFF #xFF #xFF 0)))
+        (setf width   (sdl2:surface-width surface))
+        (setf height  (sdl2:surface-height surface))
+        (setf texture (sdl2:create-texture-from-surface renderer surface))))
+    tex))
+
+;; レンダリング処理
+(defmethod tex-render (tex x y)
+  (with-slots (renderer width height texture) tex
+    (sdl2:render-copy renderer texture :dest-rect (sdl2:make-rect x y width height))))
+
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)
   ;; SDLの初期化と終了時の処理をまとめて実行
@@ -41,13 +68,7 @@
 (defun main ()
   (with-window-renderer (window renderer)
     (let* ((font    (sdl2-ttf:open-font *font-file-path* 50))            ; フォントファイルを読み込む(このとき、フォントサイズも指定)
-           ;; UTF8テキストをベタ塗りモードで描く(文字色も指定)
-           (surface (sdl2-ttf:render-utf8-solid font "　" #xFF #xFF #xFF 0))
-           (texture (sdl2:create-texture-from-surface renderer surface)) ; サーフェイスからテクスチャを生成
-           (width   (sdl2:surface-width  surface))                       ; テキストの幅
-           (height  (sdl2:surface-height surface))                       ; テキストの高さ
-           (x-pos   (- (/ +screen-width+  2) (floor width  2)))          ; テキストの表示位置(X座標)計算
-           (y-pos   (- (/ +screen-height+ 2) (floor height 2))))         ; テキストの表示位置(Y座標)計算
+           (str-tex (tex-load-from-string renderer font "こんにちは、世界！")))
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理
@@ -57,22 +78,23 @@
                       (sdl2:push-event :quit)  ; Escキーが押下された場合、quitイベントをキューに加える
                       (progn
                         (case (sdl2:scancode keysym)
-                          (:scancode-up    (setf surface (sdl2-ttf:render-utf8-solid font "上" #xFF #xFF #xFF 0)))
-                          (:scancode-down  (setf surface (sdl2-ttf:render-utf8-solid font "下" #xFF #xFF #xFF 0)))
-                          (:scancode-left  (setf surface (sdl2-ttf:render-utf8-solid font "左" #xFF #xFF #xFF 0)))
-                          (:scancode-right (setf surface (sdl2-ttf:render-utf8-solid font "右" #xFF #xFF #xFF 0))))
-                        (setf texture (sdl2:create-texture-from-surface renderer surface)))))
+                          (:scancode-up    (setf str-tex (tex-load-from-string renderer font "上")))
+                          (:scancode-down  (setf str-tex (tex-load-from-string renderer font "下")))
+                          (:scancode-left  (setf str-tex (tex-load-from-string renderer font "左")))
+                          (:scancode-right (setf str-tex (tex-load-from-string renderer font "右")))))))
         ;; キーが離されたときの処理
         (:keyup ()
-                (setf surface (sdl2-ttf:render-utf8-solid font "　" #xFF #xFF #xFF 0))
-                (setf texture (sdl2:create-texture-from-surface renderer surface)))
+                (setf str-tex (tex-load-from-string renderer font "こんにちは、世界！")))
         ;; この中に描画処理など各種イベントを記述していく
         (:idle ()
                (sdl2:set-render-draw-color renderer 0 0 0 255) ; 作図操作(矩形、線、およびクリア)に使用する色を設定
                (sdl2:render-clear renderer)                    ; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
 
                ;; レンダリング処理
-               (sdl2:render-copy renderer texture :dest-rect (sdl2:make-rect x-pos y-pos width height))
+               (with-slots (renderer width height texture) str-tex
+                 (let ((x-pos   (- (/ +screen-width+  2) (floor width  2)))          ; テキストの表示位置(X座標)計算
+                       (y-pos   (- (/ +screen-height+ 2) (floor height 2))))         ; テキストの表示位置(Y座標)計算
+                   (tex-render str-tex x-pos y-pos)))
                
                (sdl2:render-present renderer))                 ; レンダリングの結果を画面に反映
         ;; 終了イベント
