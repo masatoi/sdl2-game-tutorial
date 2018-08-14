@@ -5,40 +5,15 @@
 (ql:quickload :sdl2-image)   ; 画像ファイル読み込み、描画関連のライブラリ
 (ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
 
+;; 外部ファイルをロード
+(load "../GameUtility/texture.lisp" :external-format :utf-8)
+
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
 ;; 画像ファイルへのパス
 (defparameter *image-file-path* "../Material/graphics/picture/cat.png")
-
-;; テクスチャクラス
-(defclass class-texture ()
-  ((renderer
-    :initarg  :renderer
-    :initform (error "Must supply a renderer"))
-   (width
-    :initform 0)
-   (height
-    :initform 0)
-   (texture
-    :initform nil)))
-
-;; 画像を読み取る
-(defmethod tex-load-from-file (renderer filepath)
-  (let ((tex (make-instance 'class-texture :renderer renderer)))
-    (with-slots (renderer width height texture) tex
-      (let ((surface (sdl2-image:load-image filepath)))
-        (setf width  (sdl2:surface-width surface))
-        (setf height (sdl2:surface-height surface))
-        (sdl2:set-color-key surface :true (sdl2:map-rgb (sdl2:surface-format surface) 0 0 0))
-        (setf texture (sdl2:create-texture-from-surface renderer surface))))
-    tex))
-
-;; レンダリング処理
-(defmethod tex-render (tex x y)
-  (with-slots (renderer width height texture) tex
-    (sdl2:render-copy renderer texture :dest-rect (sdl2:make-rect x y width height))))
 
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)

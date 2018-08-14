@@ -5,39 +5,15 @@
 (ql:quickload :sdl2-image)   ; 画像ファイル読み込み、描画関連のライブラリ
 (ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
 
+;; 外部ファイルをロード
+(load "../GameUtility/texture.lisp" :external-format :utf-8)
+
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
 ;; フォントファイルへのパス
 (defparameter *font-file-path* "../Material/fonts/ipaexg.ttf")
-
-;; テクスチャクラス
-(defclass class-texture ()
-  ((renderer
-    :initarg  :renderer
-    :initform (error "Must supply a renderer"))
-   (width
-    :initform 0)
-   (height
-    :initform 0)
-   (texture
-    :initform nil)))
-
-;; 文字列の読み込み
-(defmethod tex-load-from-string (renderer font text)
-  (let ((tex (make-instance 'class-texture :renderer renderer)))
-    (with-slots (renderer width height texture) tex
-      (let ((surface  (sdl2-ttf:render-utf8-solid font text #xFF #xFF #xFF 0)))
-        (setf width   (sdl2:surface-width surface))
-        (setf height  (sdl2:surface-height surface))
-        (setf texture (sdl2:create-texture-from-surface renderer surface))))
-    tex))
-
-;; レンダリング処理
-(defmethod tex-render (tex x y)
-  (with-slots (renderer width height texture) tex
-    (sdl2:render-copy renderer texture :dest-rect (sdl2:make-rect x y width height))))
 
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)
