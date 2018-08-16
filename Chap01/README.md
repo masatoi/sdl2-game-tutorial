@@ -31,3 +31,7 @@
 ## 08 FPSタイマー
 
 ![08](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/Chap01/img/08.png)
+
+## 09 アニメーション
+
+![09](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/Chap01/img/09.png)
