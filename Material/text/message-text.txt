@@ -1,0 +1,9 @@
+[プレイヤー１]
+こんにちは、世界！
+Hello, world!
+[プレイヤー２]
+こんばんは、世界！
+Hello, Common Lisp!
+[プレイヤー３]
+おはよう、世界！
+Hello, Clojure!

@@ -21,13 +21,10 @@
 ;; フォントファイルへのパス
 (defparameter *font-file-path* "../Material/fonts/ipaexg.ttf")
 
-(defparameter *text-message-test*
-  (make-array
-   '(3 3)
-   :initial-contents
-   '(("[プレイヤー１]" "こんにちは、世界！" "Hello, world!")
-     ("[プレイヤー２]" "こんばんは、世界！" "Hello, Common Lisp!")
-     ("[プレイヤー３]" "おはよう、世界！"   "Hello, Clojure!"))))
+;; テキストファイルへのパス
+(defparameter *text-file-path* "../Material/text/message-text.txt")
+
+(defparameter *text-message-test* (make-array '(3 3) :initial-element nil))
 
 ;; フレーム数インクリメント
 (defmacro frame-incf (frame)
@@ -79,6 +76,20 @@
            (tick-per-frame (floor 1000 fixed-fps))
            (frames         0))
 
+      ;; テキストファイルからテキストを読み込み配列へ格納する
+      (let ((count1 0)
+            (count2 0))
+        (with-open-file (in *text-file-path* :if-does-not-exist nil)
+          (when in
+            (loop for line = (read-line in nil)
+               while line do (progn
+                               (setf (aref *text-message-test* count1 count2) (format nil "~a" line))
+                               (if (< count2 2)
+                                   (incf count2)
+                                   (progn
+                                     (incf count1)
+                                     (setf count2 0))))))))
+      
       (timer-start fps-timer)
       
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
