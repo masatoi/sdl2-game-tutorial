@@ -6,4 +6,13 @@ Hello, world!
 Hello, Common Lisp!
 [プレイヤー３]
 おはよう、世界！
+
+[プレイヤー4]
+
 Hello, Clojure!
+[プレイヤー5]
+
+
+
+
+

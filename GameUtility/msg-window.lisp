@@ -15,6 +15,15 @@
 (defparameter *pause-y*     445)
 (defparameter *pause-frame* 6)
 
+;; テキストファイルへのパス
+(defparameter *text-file-path* "../Material/text/message-text.txt")
+
+;; 最大テキストメッセージ数
+(defparameter *max-text-num* 0)
+
+;; メッセージ管理用配列
+(defparameter *text-message-test* (make-array `(1 3) :initial-element nil :adjustable t))
+
 ;; メッセージウィンドウクラス
 (defclass class-msgwin ()
   ((syswin-tex
@@ -32,6 +41,23 @@
    (font
     :initarg  :font
     :initform (error "Must supply a font"))))
+
+;; テキストファイルからテキストを読み込み配列へ格納する
+(defmethod load-text ()
+  (let ((count1 0)
+        (count2 0))
+    (with-open-file (in *text-file-path* :if-does-not-exist nil)
+      (when in
+        (loop for line = (read-line in nil)
+           while line do (progn
+                           (setf (aref *text-message-test* count1 count2) (format nil "~a " line))
+                           (if (< count2 2)
+                               (incf count2)
+                               (progn
+                                 (incf count1)
+                                 (setf *max-text-num* (+ count1 1))
+                                 (adjust-array *text-message-test* `(,*max-text-num* 3))
+                                 (setf count2 0)))))))))
 
 ;; システムウィンドウレンダリング処理
 (defmethod system-window-render (tex x y w h)
@@ -64,33 +90,7 @@
       ;; Center
       (tex-render2 tex (+ x width-size) (+ y height-size) (- w (* width-size 2)) (- h (* height-size 2)) :clip center))))
 
-
-(defmethod msg-clear (obj renderer frames tick-per-frame)
-  (with-slots (syswin-tex str-tex pause-tex pause-clip font) obj
-    ;; ベースウィンドウ表示
-    (system-window-render syswin-tex *base-win-x* *base-win-y* *base-win-w* *base-win-h*)
-
-    ;; 1行目テキスト表示
-    (setf str-tex (tex-load-from-string renderer font ""))
-    (tex-render str-tex *text-x-pos* *1st-line*)
-
-    ;; 2行目テキスト表示
-    (setf str-tex (tex-load-from-string renderer font ""))
-    (tex-render str-tex *text-x-pos* *2nd-line*)
-
-    ;; 3行目テキスト表示
-    (setf str-tex (tex-load-from-string renderer font ""))
-    (tex-render str-tex *text-x-pos* *3rd-line*)
-    
-    ;; ポーズアニメーション表示
-    (tex-render pause-tex *pause-x* *pause-y* :clip pause-clip)
-
-    ;; ポーズアニメーション更新
-    (when (zerop (rem frames tick-per-frame))
-      (setf (sdl2:rect-y pause-clip) (* (rem frames *pause-frame*) (sdl2:rect-height pause-clip))))))
-
-
-(defmethod msg-view (obj renderer frames tick-per-frame &key 1st 2nd 3rd)
+(defmethod msg-view (obj renderer frames tick-per-frame text-count &key 1st 2nd 3rd)
   (with-slots (syswin-tex str-tex pause-tex pause-clip font) obj
     ;; ベースウィンドウ表示
     (system-window-render syswin-tex *base-win-x* *base-win-y* *base-win-w* *base-win-h*)
@@ -109,10 +109,11 @@
     (when 3rd
       (setf str-tex (tex-load-from-string renderer font 3rd))
       (tex-render str-tex *text-x-pos* *3rd-line*))
-    
-    ;; ポーズアニメーション表示
-    (tex-render pause-tex *pause-x* *pause-y* :clip pause-clip)
 
-    ;; ポーズアニメーション更新
-    (when (zerop (rem frames tick-per-frame))
-      (setf (sdl2:rect-y pause-clip) (* (rem frames *pause-frame*) (sdl2:rect-height pause-clip))))))
+    (when (< text-count (- *max-text-num* 2))
+      ;; ポーズアニメーション表示
+      (tex-render pause-tex *pause-x* *pause-y* :clip pause-clip)
+
+      ;; ポーズアニメーション更新
+      (when (zerop (rem frames tick-per-frame))
+        (setf (sdl2:rect-y pause-clip) (* (rem frames *pause-frame*) (sdl2:rect-height pause-clip)))))))

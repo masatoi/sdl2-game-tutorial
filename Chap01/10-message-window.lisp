@@ -21,11 +21,6 @@
 ;; フォントファイルへのパス
 (defparameter *font-file-path* "../Material/fonts/ipaexg.ttf")
 
-;; テキストファイルへのパス
-(defparameter *text-file-path* "../Material/text/message-text.txt")
-
-(defparameter *text-message-test* (make-array '(3 3) :initial-element nil))
-
 ;; フレーム数インクリメント
 (defmacro frame-incf (frame)
   `(if (= ,frame most-positive-fixnum)
@@ -77,19 +72,7 @@
            (frames         0))
 
       ;; テキストファイルからテキストを読み込み配列へ格納する
-      (let ((count1 0)
-            (count2 0))
-        (with-open-file (in *text-file-path* :if-does-not-exist nil)
-          (when in
-            (loop for line = (read-line in nil)
-               while line do (progn
-                               (setf (aref *text-message-test* count1 count2) (format nil "~a" line))
-                               (if (< count2 2)
-                                   (incf count2)
-                                   (progn
-                                     (incf count1)
-                                     (setf count2 0))))))))
-      
+      (load-text)
       (timer-start fps-timer)
       
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
@@ -104,7 +87,7 @@
                       (progn
                         (case (sdl2:scancode keysym)
                           (:scancode-z (progn (if event-flg
-                                                  (if (< text-count 2)
+                                                  (if (< text-count (- *max-text-num* 2))
                                                       (incf text-count)
                                                       (progn (setf text-count 0) (setf event-flg nil)))
                                                   (setf event-flg t))))
@@ -121,7 +104,7 @@
 
                ;; レンダリング処理
                (when event-flg
-                 (msg-view msg-window renderer frames tick-per-frame
+                 (msg-view msg-window renderer frames tick-per-frame text-count
                            :1st (aref *text-message-test* text-count 0)
                            :2nd (aref *text-message-test* text-count 1)
                            :3rd (aref *text-message-test* text-count 2)))
