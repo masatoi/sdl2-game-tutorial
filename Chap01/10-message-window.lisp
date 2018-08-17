@@ -6,8 +6,9 @@
 (ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
 
 ;; 外部ファイルをロード
-(load "../GameUtility/texture.lisp" :external-format :utf-8)
-(load "../GameUtility/fps-timer.lisp" :external-format :utf-8)
+(load "../GameUtility/texture.lisp"    :external-format :utf-8)
+(load "../GameUtility/fps-timer.lisp"  :external-format :utf-8)
+(load "../GameUtility/msg-window.lisp" :external-format :utf-8)
 
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
@@ -20,54 +21,11 @@
 ;; フォントファイルへのパス
 (defparameter *font-file-path* "../Material/fonts/ipaexg.ttf")
 
-;; アニメーションフレーム
-(defparameter *pause-frame* 6)
-
 ;; フレーム数インクリメント
 (defmacro frame-incf (frame)
   `(if (= ,frame most-positive-fixnum)
        (setf ,frame 1)
        (incf ,frame)))
-
-;; システムウィンドウレンダリング処理
-(defmethod system-window-render (tex x y w h)
-  (with-slots (width height) tex
-    (let* ((width-size   (/ width  3))
-           (height-size  (/ height 3))
-           (right-pos    (- width (* (/ width 3) 3)))
-           (center-pos   (- width (* (/ width 3) 2)))
-           (left-pos     (- width (* (/ width 3) 1)))
-           (upper-left   (sdl2:make-rect right-pos  right-pos  width-size height-size))
-           (upper-right  (sdl2:make-rect left-pos   right-pos  width-size height-size))
-           (bottom-left  (sdl2:make-rect right-pos  left-pos   width-size height-size))
-           (bottom-right (sdl2:make-rect left-pos   left-pos   width-size height-size))
-           (upper        (sdl2:make-rect center-pos right-pos  width-size height-size))
-           (bottom       (sdl2:make-rect center-pos left-pos   width-size height-size))
-           (left         (sdl2:make-rect right-pos  center-pos width-size height-size))
-           (right        (sdl2:make-rect left-pos   center-pos width-size height-size))
-           (center       (sdl2:make-rect center-pos center-pos width-size height-size)))
-      ;; Four Corners
-      (tex-render tex x                      y                       :clip upper-left  )
-      (tex-render tex (+ x (- w width-size)) y                       :clip upper-right )
-      (tex-render tex x                      (+ y (- h height-size)) :clip bottom-left )
-      (tex-render tex (+ x (- w width-size)) (+ y (- h height-size)) :clip bottom-right)
-      ;; Upper/Bottom
-      (tex-render2 tex (+ x width-size) y                       (- w (* width-size 2)) height-size :clip upper )
-      (tex-render2 tex (+ x width-size) (+ y (- h height-size)) (- w (* width-size 2)) height-size :clip bottom)
-      ;; Right/Left
-      (tex-render2 tex x                      (+ y height-size) width-size (- h (* height-size 2)) :clip left  )
-      (tex-render2 tex (+ x (- w width-size)) (+ y height-size) width-size (- h (* height-size 2)) :clip right )
-      ;; Center
-      (tex-render2 tex (+ x width-size) (+ y height-size) (- w (* width-size 2)) (- h (* height-size 2)) :clip center))))
-
-(defun message-window (renderer syswin-tex pause-tex clip font text-message)
-  (let ((str-tex (tex-load-from-string renderer font text-message)))
-    ;; ベースウィンドウ表示
-    (system-window-render syswin-tex 25 345 590 110)
-    ;; テキスト表示
-    (tex-render str-tex 40 360)
-    ;; ポーズアニメーション表示
-    (tex-render pause-tex 305 445 :clip clip)))
 
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)
@@ -98,11 +56,11 @@
 (defun main ()
   (with-window-renderer (window renderer)
     ;; 画像ファイル読み込み、画像情報の取得などを行う
-    (let* ((syswin-tex     (tex-load-from-file renderer *img-syswin*))
-           (pause-tex      (tex-load-from-file renderer *img-pause*))
-           (font           (sdl2-ttf:open-font *font-file-path* 20))
-           ;; アニメーション用
-           (clip           (sdl2:make-rect 0 0 30 16))
+    (let* ((msg-window     (make-instance 'class-msgwin
+                                          :syswin-tex (tex-load-from-file renderer *img-syswin*)
+                                          :pause-tex  (tex-load-from-file renderer *img-pause*)
+                                          :pause-clip (sdl2:make-rect 0 0 30 16)
+                                          :font       (sdl2-ttf:open-font *font-file-path* 20)))
            ;; FPS用変数
            (fps-timer      (make-instance 'fps-timer))
            (cap-timer      (make-instance 'fps-timer))
@@ -129,7 +87,7 @@
                (sdl2:render-clear renderer)
 
                ;; レンダリング処理
-               (message-window renderer syswin-tex pause-tex clip font "こんにちは、世界！")
+               (message-window msg-window renderer frames tick-per-frame :1st "こんにちは、世界！" :2nd "Hello, world!" :3rd "I love a Lisp!")
                
                ;; 遅延処理
                (let ((time (timer-get-ticks cap-timer)))
@@ -138,10 +96,6 @@
 
                ;; フレーム数をインクリメント
                (frame-incf frames)
-
-               ;; アニメーション更新
-               (when (zerop (rem frames tick-per-frame))
-                 (setf (sdl2:rect-y clip) (* (rem frames *pause-frame*) (sdl2:rect-height clip))))
                
                ;; レンダリングの結果を画面に反映
                (sdl2:render-present renderer))
