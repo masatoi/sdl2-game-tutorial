@@ -1,4 +1,4 @@
-;;; 07：システムウィンドウ表示
+;;; 10：メッセージウィンドウ
 
 ;; SDL2ライブラリのロード
 (ql:quickload :sdl2)         ; SDL2ライブラリ
@@ -20,6 +20,14 @@
 
 ;; フォントファイルへのパス
 (defparameter *font-file-path* "../Material/fonts/ipaexg.ttf")
+
+(defparameter *text-message-test*
+  (make-array
+   '(3 3)
+   :initial-contents
+   '(("[プレイヤー１]" "こんにちは、世界！" "Hello, world!")
+     ("[プレイヤー２]" "こんばんは、世界！" "Hello, Common Lisp!")
+     ("[プレイヤー３]" "おはよう、世界！"   "Hello, Clojure!"))))
 
 ;; フレーム数インクリメント
 (defmacro frame-incf (frame)
@@ -61,6 +69,9 @@
                                           :pause-tex  (tex-load-from-file renderer *img-pause*)
                                           :pause-clip (sdl2:make-rect 0 0 30 16)
                                           :font       (sdl2-ttf:open-font *font-file-path* 20)))
+           ;; メッセージ処理
+           (event-flg      nil)
+           (text-count     0)
            ;; FPS用変数
            (fps-timer      (make-instance 'fps-timer))
            (cap-timer      (make-instance 'fps-timer))
@@ -76,7 +87,18 @@
         (:keydown (:keysym keysym)
                   ;; keysymをスキャンコードの数値(scancode-value)に変換して、キー判定処理(scancode=)を行う
                   (if (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-escape)
-                      (sdl2:push-event :quit))) ; Escキーが押下された場合、quitイベントをキューに加える
+                      ;; Escキーが押下された場合、quitイベントをキューに加える
+                      (sdl2:push-event :quit)
+                      ;; その他のキー入力処理
+                      (progn
+                        (case (sdl2:scancode keysym)
+                          (:scancode-z (progn (if event-flg
+                                                  (if (< text-count 2)
+                                                      (incf text-count)
+                                                      (progn (setf text-count 0) (setf event-flg nil)))
+                                                  (setf event-flg t))))
+                          (:scancode-x (progn (setf event-flg nil)
+                                              (setf text-count 0)))))))
         ;; この中に描画処理など各種イベントを記述していく
         (:idle ()
                (timer-start cap-timer)
@@ -87,7 +109,11 @@
                (sdl2:render-clear renderer)
 
                ;; レンダリング処理
-               (message-window msg-window renderer frames tick-per-frame :1st "こんにちは、世界！" :2nd "Hello, world!" :3rd "I love a Lisp!")
+               (when event-flg
+                 (msg-view msg-window renderer frames tick-per-frame
+                           :1st (aref *text-message-test* text-count 0)
+                           :2nd (aref *text-message-test* text-count 1)
+                           :3rd (aref *text-message-test* text-count 2)))
                
                ;; 遅延処理
                (let ((time (timer-get-ticks cap-timer)))

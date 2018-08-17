@@ -64,7 +64,33 @@
       ;; Center
       (tex-render2 tex (+ x width-size) (+ y height-size) (- w (* width-size 2)) (- h (* height-size 2)) :clip center))))
 
-(defmethod message-window (obj renderer frames tick-per-frame &key 1st 2nd 3rd)
+
+(defmethod msg-clear (obj renderer frames tick-per-frame)
+  (with-slots (syswin-tex str-tex pause-tex pause-clip font) obj
+    ;; ベースウィンドウ表示
+    (system-window-render syswin-tex *base-win-x* *base-win-y* *base-win-w* *base-win-h*)
+
+    ;; 1行目テキスト表示
+    (setf str-tex (tex-load-from-string renderer font ""))
+    (tex-render str-tex *text-x-pos* *1st-line*)
+
+    ;; 2行目テキスト表示
+    (setf str-tex (tex-load-from-string renderer font ""))
+    (tex-render str-tex *text-x-pos* *2nd-line*)
+
+    ;; 3行目テキスト表示
+    (setf str-tex (tex-load-from-string renderer font ""))
+    (tex-render str-tex *text-x-pos* *3rd-line*)
+    
+    ;; ポーズアニメーション表示
+    (tex-render pause-tex *pause-x* *pause-y* :clip pause-clip)
+
+    ;; ポーズアニメーション更新
+    (when (zerop (rem frames tick-per-frame))
+      (setf (sdl2:rect-y pause-clip) (* (rem frames *pause-frame*) (sdl2:rect-height pause-clip))))))
+
+
+(defmethod msg-view (obj renderer frames tick-per-frame &key 1st 2nd 3rd)
   (with-slots (syswin-tex str-tex pause-tex pause-clip font) obj
     ;; ベースウィンドウ表示
     (system-window-render syswin-tex *base-win-x* *base-win-y* *base-win-w* *base-win-h*)
