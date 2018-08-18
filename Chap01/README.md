@@ -39,3 +39,7 @@
 ## 10 メッセージウィンドウ
 
 ![10](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/Chap01/img/10.png)
+
+## 11 キャラクター操作
+
+![11](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/Chap01/img/11.png)
