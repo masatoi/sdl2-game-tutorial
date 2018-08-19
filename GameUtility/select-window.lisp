@@ -7,7 +7,22 @@
     :initform (error "Must supply a cursor-tex"))
    (font
     :initarg  :font
-    :initform (error "Must supply a font"))))
+    :initform (error "Must supply a font"))
+   (menu
+    :initarg  :menu
+    :initform nil)
+   (max-str-len
+    :initarg  :max-str-len
+    :initform 0)
+   (menu-count
+    :initarg  :menu-count
+    :initform 0)
+   (cursor-x
+    :initarg  :cursor-x
+    :initform 0)
+   (cursor-y
+    :initarg  :cursor-y
+    :initform 0)))
 
 (defmethod create-menu-str (obj renderer values)
   (let ((menu-str (make-array 1 :initial-element nil :adjustable t)))
@@ -25,22 +40,26 @@
         (setf max len)))
     max))
 
-(defmethod select-window (obj renderer menu-arr max-str-len count)
-  (with-slots (syswin-tex cursor-tex font) obj
+(defmethod select-window (obj renderer)
+  (with-slots (syswin-tex cursor-tex font menu max-str-len menu-count cursor-x cursor-y) obj
     (let* ((width    (* max-str-len 30))
-           (height   (* count 40))
-           (syswin-x (- (/ 640 2) (/ width  2)))
-           (syswin-y (- (/ 480 2) (/ height 2)))
+           (height   (* menu-count 40))
+           (syswin-x (- 320 (/ width  2)))
+           (syswin-y (- 240 (/ height 2)))
            (str-x    (+ syswin-x 10))
-           (str-y    (+ syswin-y 10)))
+           (str-y    (+ syswin-y 10))
+           (cur-w    width)
+           (cur-h    40)
+           (cur-x    (+ syswin-x (* cursor-x cur-w)))
+           (cur-y    (+ syswin-y (* cursor-y cur-h))))
       
       ;; ベースウィンドウ表示
       (system-window-render syswin-tex syswin-x syswin-y width height)
 
       ;; 文字列表示
-      (dotimes (n count)
-        (tex-render (aref menu-arr n) str-x str-y)
+      (dotimes (n menu-count)
+        (tex-render (aref menu n) str-x str-y)
         (setf str-y (+ str-y 40)))
 
       ;; カーソル表示
-      (system-window-render cursor-tex syswin-x syswin-y width 40 :alpha 100))))
+      (system-window-render cursor-tex cur-x cur-y cur-w cur-h :alpha 100))))

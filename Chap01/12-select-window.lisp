@@ -51,27 +51,39 @@
   (with-window-renderer (window renderer)
     ;; 画像ファイル読み込み、画像情報の取得などを行う
     (let* ((select-tex  (make-instance 'class-selectwin
-                                      :syswin-tex (tex-load-from-file renderer *img-system*)
-                                      :cursor-tex (tex-load-from-file renderer *img-cursor*)
-                                      :font       (sdl2-ttf:open-font *font-file-path* 20)))
-           (menu-str    '("アイテム" "スキル" "装備" "ステータス" "オプション" "セーブ" "ゲーム終了"))
-           (menu-arr    (create-menu-str select-tex renderer menu-str))
-           (max-str-len (max-str-length menu-str))
-           (menu-count  (length menu-str)))
+                                       :syswin-tex (tex-load-from-file renderer *img-system*)
+                                       :cursor-tex (tex-load-from-file renderer *img-cursor*)
+                                       :font       (sdl2-ttf:open-font *font-file-path* 20))))
+
+      ;; 選択肢ウィンドウ作成
+      (with-slots (menu max-str-len menu-count) select-tex
+        (let ((menu-str '("選択肢１" "選択肢２" "選択肢３")))
+          (setf menu        (create-menu-str select-tex renderer menu-str))
+          (setf max-str-len (max-str-length menu-str))
+          (setf menu-count  (length menu-str))))
+      
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理
         (:keydown (:keysym keysym)
                   ;; keysymをスキャンコードの数値(scancode-value)に変換して、キー判定処理(scancode=)を行う
                   (if (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-escape)
-                      (sdl2:push-event :quit))) ; Escキーが押下された場合、quitイベントをキューに加える
+                      (sdl2:push-event :quit) ; Escキーが押下された場合、quitイベントをキューに加える
+                      (with-slots (menu-count cursor-x cursor-y) select-tex
+                        (case (sdl2:scancode keysym)
+                          (:scancode-up    (if (= cursor-y 0)
+                                               (setf cursor-y (- menu-count 1))
+                                               (decf cursor-y)))
+                          (:scancode-down  (if (= cursor-y (- menu-count 1))
+                                               (setf cursor-y 0)
+                                               (incf cursor-y)))))))
         ;; この中に描画処理など各種イベントを記述していく
         (:idle ()
                (sdl2:set-render-draw-color renderer 0 0 0 255) ; 作図操作(矩形、線、およびクリア)に使用する色を設定
                (sdl2:render-clear renderer)                    ; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
 
                ;; レンダリング処理
-               (select-window select-tex renderer menu-arr max-str-len menu-count)
+               (select-window select-tex renderer)
                
                (sdl2:render-present renderer))                 ; レンダリングの結果を画面に反映
         ;; 終了イベント
