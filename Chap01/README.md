@@ -43,3 +43,7 @@
 ## 11 キャラクター操作
 
 ![11](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/Chap01/img/11.png)
+
+## 12 選択肢ウィンドウ
+
+![12](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/Chap01/img/12.png)
