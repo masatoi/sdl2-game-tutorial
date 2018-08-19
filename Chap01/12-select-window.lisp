@@ -1,4 +1,4 @@
-;;; 07：システムウィンドウ表示
+;;; 12：選択肢ウィンドウ
 
 ;; SDL2ライブラリのロード
 (ql:quickload :sdl2)         ; SDL2ライブラリ
@@ -6,15 +6,20 @@
 (ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
 
 ;; 外部ファイルをロード
-(load "../GameUtility/texture.lisp"    :external-format :utf-8)
-(load "../GameUtility/msg-window.lisp" :external-format :utf-8)
+(load "../GameUtility/texture.lisp"       :external-format :utf-8)
+(load "../GameUtility/msg-window.lisp"    :external-format :utf-8)
+(load "../GameUtility/select-window.lisp" :external-format :utf-8)
 
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
 ;; 画像ファイルへのパス
-(defparameter *image-file-path* "../Material/graphics/system/systemwindow.png")
+(defparameter *img-system* "../Material/graphics/system/systemwindow.png")
+(defparameter *img-cursor* "../Material/graphics/system/cursor.png")
+
+;; フォントファイルへのパス
+(defparameter *font-file-path* "../Material/fonts/ipaexg.ttf")
 
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)
@@ -45,7 +50,14 @@
 (defun main ()
   (with-window-renderer (window renderer)
     ;; 画像ファイル読み込み、画像情報の取得などを行う
-    (let ((sys-window-tex (tex-load-from-file renderer *image-file-path*)))
+    (let* ((select-tex  (make-instance 'class-selectwin
+                                      :syswin-tex (tex-load-from-file renderer *img-system*)
+                                      :cursor-tex (tex-load-from-file renderer *img-cursor*)
+                                      :font       (sdl2-ttf:open-font *font-file-path* 20)))
+           (menu-str    '("アイテム" "スキル" "装備" "ステータス" "オプション" "セーブ" "ゲーム終了"))
+           (menu-arr    (create-menu-str select-tex renderer menu-str))
+           (max-str-len (max-str-length menu-str))
+           (menu-count  (length menu-str)))
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理
@@ -59,7 +71,7 @@
                (sdl2:render-clear renderer)                    ; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
 
                ;; レンダリング処理
-               (system-window-render sys-window-tex 25 345 590 110)
+               (select-window select-tex renderer menu-arr max-str-len menu-count)
                
                (sdl2:render-present renderer))                 ; レンダリングの結果を画面に反映
         ;; 終了イベント
