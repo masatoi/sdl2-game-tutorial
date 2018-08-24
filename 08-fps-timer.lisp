@@ -1,4 +1,4 @@
-;;; 12：選択肢ウィンドウ
+;;; 08：FPSタイマー
 
 ;; SDL2ライブラリのロード
 (ql:quickload :sdl2)         ; SDL2ライブラリ
@@ -6,20 +6,21 @@
 (ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
 
 ;; 外部ファイルをロード
-(load "../GameUtility/texture.lisp"       :external-format :utf-8)
-(load "../GameUtility/msg-window.lisp"    :external-format :utf-8)
-(load "../GameUtility/select-window.lisp" :external-format :utf-8)
+(load "GameUtility/texture.lisp"   :external-format :utf-8)
+(load "GameUtility/fps-timer.lisp" :external-format :utf-8)
 
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
-;; 画像ファイルへのパス
-(defparameter *img-system* "../Material/graphics/system/systemwindow.png")
-(defparameter *img-cursor* "../Material/graphics/system/cursor.png")
-
 ;; フォントファイルへのパス
-(defparameter *font-file-path* "../Material/fonts/ipaexg.ttf")
+(defparameter *font-file-path* "Material/fonts/ipaexg.ttf")
+
+;; フレーム数インクリメント
+(defmacro frame-incf (frame)
+  `(if (= ,frame most-positive-fixnum)
+       (setf ,frame 1)
+       (incf ,frame)))
 
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)
@@ -49,18 +50,14 @@
 
 (defun main ()
   (with-window-renderer (window renderer)
-    ;; 画像ファイル読み込み、画像情報の取得などを行う
-    (let* ((select-tex  (make-instance 'class-selectwin
-                                       :syswin-tex (tex-load-from-file renderer *img-system*)
-                                       :cursor-tex (tex-load-from-file renderer *img-cursor*)
-                                       :font       (sdl2-ttf:open-font *font-file-path* 20))))
+    (let* ((font           (sdl2-ttf:open-font *font-file-path* 50)) ; フォントファイルを読み込む(このとき、フォントサイズも指定)
+           (fps-timer      (make-instance 'fps-timer))
+           (cap-timer      (make-instance 'fps-timer))
+           (fixed-fps      60)
+           (tick-per-frame (floor 1000 fixed-fps))
+           (frames         1))
 
-      ;; 選択肢ウィンドウ作成
-      (with-slots (menu max-str-len menu-count) select-tex
-        (let ((menu-str '("選択肢１" "選択肢２" "選択肢３")))
-          (setf menu        (create-menu-str select-tex renderer menu-str))
-          (setf max-str-len (max-str-length menu-str))
-          (setf menu-count  (length menu-str))))
+      (timer-start fps-timer)
       
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
@@ -68,24 +65,34 @@
         (:keydown (:keysym keysym)
                   ;; keysymをスキャンコードの数値(scancode-value)に変換して、キー判定処理(scancode=)を行う
                   (if (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-escape)
-                      (sdl2:push-event :quit) ; Escキーが押下された場合、quitイベントをキューに加える
-                      (with-slots (menu-count cursor-x cursor-y) select-tex
-                        (case (sdl2:scancode keysym)
-                          (:scancode-up    (if (= cursor-y 0)
-                                               (setf cursor-y (- menu-count 1))
-                                               (decf cursor-y)))
-                          (:scancode-down  (if (= cursor-y (- menu-count 1))
-                                               (setf cursor-y 0)
-                                               (incf cursor-y)))))))
+                      (sdl2:push-event :quit))) ; Escキーが押下された場合、quitイベントをキューに加える
         ;; この中に描画処理など各種イベントを記述していく
         (:idle ()
-               (sdl2:set-render-draw-color renderer 0 0 0 255) ; 作図操作(矩形、線、およびクリア)に使用する色を設定
-               (sdl2:render-clear renderer)                    ; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
+               (timer-start cap-timer)
+               
+               ;; 作図操作(矩形、線、およびクリア)に使用する色を設定
+               (sdl2:set-render-draw-color renderer 0 0 0 255)
+               ;; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
+               (sdl2:render-clear renderer)
 
                ;; レンダリング処理
-               (select-window select-tex renderer)
-               
-               (sdl2:render-present renderer))                 ; レンダリングの結果を画面に反映
+               (let* ((txt-fps (format nil "FPS : ~a" (floor frames (1+ (floor (timer-get-ticks fps-timer) 1000))))) ; FPS計算
+                      (str-tex (tex-load-from-string renderer font txt-fps)))
+                 (with-slots (renderer width height texture) str-tex
+                   (let ((x-pos   (- (/ +screen-width+  2) (floor width  2)))          ; テキストの表示位置(X座標)計算
+                         (y-pos   (- (/ +screen-height+ 2) (floor height 2))))         ; テキストの表示位置(Y座標)計算
+                     (tex-render str-tex x-pos y-pos))))
+
+               ;; 遅延処理
+               (let ((time (timer-get-ticks cap-timer)))
+                 (when (< time tick-per-frame)
+                   (sdl2:delay (floor (- tick-per-frame time)))))
+
+               ;; フレーム数をインクリメント
+               (frame-incf frames)
+
+               ;; レンダリングの結果を画面に反映
+               (sdl2:render-present renderer))
         ;; 終了イベント
         (:quit () t)))))
 

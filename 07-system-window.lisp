@@ -1,4 +1,4 @@
-;;; 02：画像を表示する
+;;; 07：システムウィンドウ表示
 
 ;; SDL2ライブラリのロード
 (ql:quickload :sdl2)         ; SDL2ライブラリ
@@ -6,14 +6,15 @@
 (ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
 
 ;; 外部ファイルをロード
-(load "../GameUtility/texture.lisp" :external-format :utf-8)
+(load "GameUtility/texture.lisp"    :external-format :utf-8)
+(load "GameUtility/msg-window.lisp" :external-format :utf-8)
 
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
 ;; 画像ファイルへのパス
-(defparameter *image-file-path* "../Material/graphics/picture/cat.png")
+(defparameter *image-file-path* "Material/graphics/system/systemwindow.png")
 
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)
@@ -44,7 +45,7 @@
 (defun main ()
   (with-window-renderer (window renderer)
     ;; 画像ファイル読み込み、画像情報の取得などを行う
-    (let ((img-tex (tex-load-from-file renderer *image-file-path*)))
+    (let ((sys-window-tex (tex-load-from-file renderer *image-file-path*)))
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理
@@ -58,10 +59,7 @@
                (sdl2:render-clear renderer)                    ; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
 
                ;; レンダリング処理
-               (with-slots (renderer width height texture) img-tex
-                 (let ((x-pos   (- (/ +screen-width+  2) (floor width  2)))          ; テキストの表示位置(X座標)計算
-                       (y-pos   (- (/ +screen-height+ 2) (floor height 2))))         ; テキストの表示位置(Y座標)計算
-                   (tex-render img-tex x-pos y-pos)))
+               (system-window-render sys-window-tex 25 345 590 110)
                
                (sdl2:render-present renderer))                 ; レンダリングの結果を画面に反映
         ;; 終了イベント

@@ -1,4 +1,4 @@
-;;; 07：システムウィンドウ表示
+;;; 05：キー入力
 
 ;; SDL2ライブラリのロード
 (ql:quickload :sdl2)         ; SDL2ライブラリ
@@ -6,15 +6,14 @@
 (ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
 
 ;; 外部ファイルをロード
-(load "../GameUtility/texture.lisp"    :external-format :utf-8)
-(load "../GameUtility/msg-window.lisp" :external-format :utf-8)
+(load "GameUtility/texture.lisp" :external-format :utf-8)
 
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
-;; 画像ファイルへのパス
-(defparameter *image-file-path* "../Material/graphics/system/systemwindow.png")
+;; フォントファイルへのパス
+(defparameter *font-file-path* "Material/fonts/ipaexg.ttf")
 
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)
@@ -44,22 +43,34 @@
 
 (defun main ()
   (with-window-renderer (window renderer)
-    ;; 画像ファイル読み込み、画像情報の取得などを行う
-    (let ((sys-window-tex (tex-load-from-file renderer *image-file-path*)))
+    (let* ((font    (sdl2-ttf:open-font *font-file-path* 50))            ; フォントファイルを読み込む(このとき、フォントサイズも指定)
+           (str-tex (tex-load-from-string renderer font "こんにちは、世界！")))
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理
         (:keydown (:keysym keysym)
                   ;; keysymをスキャンコードの数値(scancode-value)に変換して、キー判定処理(scancode=)を行う
                   (if (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-escape)
-                      (sdl2:push-event :quit))) ; Escキーが押下された場合、quitイベントをキューに加える
+                      (sdl2:push-event :quit)  ; Escキーが押下された場合、quitイベントをキューに加える
+                      (progn
+                        (case (sdl2:scancode keysym)
+                          (:scancode-up    (setf str-tex (tex-load-from-string renderer font "上")))
+                          (:scancode-down  (setf str-tex (tex-load-from-string renderer font "下")))
+                          (:scancode-left  (setf str-tex (tex-load-from-string renderer font "左")))
+                          (:scancode-right (setf str-tex (tex-load-from-string renderer font "右")))))))
+        ;; キーが離されたときの処理
+        (:keyup ()
+                (setf str-tex (tex-load-from-string renderer font "こんにちは、世界！")))
         ;; この中に描画処理など各種イベントを記述していく
         (:idle ()
                (sdl2:set-render-draw-color renderer 0 0 0 255) ; 作図操作(矩形、線、およびクリア)に使用する色を設定
                (sdl2:render-clear renderer)                    ; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
 
                ;; レンダリング処理
-               (system-window-render sys-window-tex 25 345 590 110)
+               (with-slots (renderer width height texture) str-tex
+                 (let ((x-pos   (- (/ +screen-width+  2) (floor width  2)))          ; テキストの表示位置(X座標)計算
+                       (y-pos   (- (/ +screen-height+ 2) (floor height 2))))         ; テキストの表示位置(Y座標)計算
+                   (tex-render str-tex x-pos y-pos)))
                
                (sdl2:render-present renderer))                 ; レンダリングの結果を画面に反映
         ;; 終了イベント

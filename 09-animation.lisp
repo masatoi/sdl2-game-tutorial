@@ -6,16 +6,16 @@
 (ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
 
 ;; 外部ファイルをロード
-(load "../GameUtility/texture.lisp"   :external-format :utf-8)
-(load "../GameUtility/fps-timer.lisp" :external-format :utf-8)
+(load "GameUtility/texture.lisp"   :external-format :utf-8)
+(load "GameUtility/fps-timer.lisp" :external-format :utf-8)
 
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
 ;; 画像ファイルへのパス
-(defparameter *img-player* "../Material/char-obj-chip/player.png")
-(defparameter *img-trap*   "../Material/char-obj-chip/trap.png")
+(defparameter *img-player* "Material/char-obj-chip/player.png")
+(defparameter *img-trap*   "Material/char-obj-chip/trap.png")
 
 ;; フレーム数インクリメント
 (defmacro frame-incf (frame)

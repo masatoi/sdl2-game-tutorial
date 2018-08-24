@@ -6,14 +6,14 @@
 (ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
 
 ;; 外部ファイルをロード
-(load "../GameUtility/texture.lisp" :external-format :utf-8)
+(load "GameUtility/texture.lisp" :external-format :utf-8)
 
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
 ;; フォントファイルへのパス
-(defparameter *font-file-path* "../Material/fonts/ipaexg.ttf")
+(defparameter *font-file-path* "Material/fonts/ipaexg.ttf")
 
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)

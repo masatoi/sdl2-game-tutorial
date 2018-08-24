@@ -1,4 +1,4 @@
-;;; 10：メッセージウィンドウ
+;;; 11：キャラクター操作
 
 ;; SDL2ライブラリのロード
 (ql:quickload :sdl2)         ; SDL2ライブラリ
@@ -6,20 +6,16 @@
 (ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
 
 ;; 外部ファイルをロード
-(load "../GameUtility/texture.lisp"    :external-format :utf-8)
-(load "../GameUtility/fps-timer.lisp"  :external-format :utf-8)
-(load "../GameUtility/msg-window.lisp" :external-format :utf-8)
+(load "GameUtility/texture.lisp"   :external-format :utf-8)
+(load "GameUtility/fps-timer.lisp" :external-format :utf-8)
+(load "GameUtility/character.lisp" :external-format :utf-8)
 
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
 ;; 画像ファイルへのパス
-(defparameter *img-syswin* "../Material/graphics/system/systemwindow.png")
-(defparameter *img-pause*  "../Material/graphics/system/text-pause.png")
-
-;; フォントファイルへのパス
-(defparameter *font-file-path* "../Material/fonts/ipaexg.ttf")
+(defparameter *img-player* "Material/char-obj-chip/player.png")
 
 ;; フレーム数インクリメント
 (defmacro frame-incf (frame)
@@ -55,24 +51,18 @@
 
 (defun main ()
   (with-window-renderer (window renderer)
-    ;; 画像ファイル読み込み、画像情報の取得などを行う
-    (let* ((msg-window     (make-instance 'class-msgwin
-                                          :syswin-tex (tex-load-from-file renderer *img-syswin*)
-                                          :pause-tex  (tex-load-from-file renderer *img-pause*)
-                                          :pause-clip (sdl2:make-rect 0 0 30 16)
-                                          :font       (sdl2-ttf:open-font *font-file-path* 20)))
-           ;; メッセージ処理
-           (event-flg      nil)
-           (text-count     0)
+    (let* ((player-img  (tex-load-from-file renderer *img-player*))
+           (player-char (make-instance 'class-character :clip (sdl2:make-rect 0 0 32 32)))
+           ;; アニメーション用変数
+           (cur-sprite-frame  1) ; 現在表示している絵 (0:左, 1:真ん中, 2:右)
+           (prev-sprite-frame 0) ; 一つ前に表示していた絵 (0:左, 1:真ん中, 2:右)
            ;; FPS用変数
            (fps-timer      (make-instance 'fps-timer))
            (cap-timer      (make-instance 'fps-timer))
            (fixed-fps      60)
            (tick-per-frame (floor 1000 fixed-fps))
-           (frames         0))
+           (frames         1))
 
-      ;; テキストファイルからテキストを読み込み配列へ格納する
-      (load-text)
       (timer-start fps-timer)
       
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
@@ -81,18 +71,8 @@
         (:keydown (:keysym keysym)
                   ;; keysymをスキャンコードの数値(scancode-value)に変換して、キー判定処理(scancode=)を行う
                   (if (sdl2:scancode= (sdl2:scancode-value keysym) :scancode-escape)
-                      ;; Escキーが押下された場合、quitイベントをキューに加える
-                      (sdl2:push-event :quit)
-                      ;; その他のキー入力処理
-                      (progn
-                        (case (sdl2:scancode keysym)
-                          (:scancode-z (progn (if event-flg
-                                                  (if (< text-count (- *max-text-num* 2))
-                                                      (incf text-count)
-                                                      (progn (setf text-count 0) (setf event-flg nil)))
-                                                  (setf event-flg t))))
-                          (:scancode-x (progn (setf event-flg nil)
-                                              (setf text-count 0)))))))
+                      (sdl2:push-event :quit)  ; Escキーが押下された場合、quitイベントをキューに加える
+                      (chk-key player-char keysym)))
         ;; この中に描画処理など各種イベントを記述していく
         (:idle ()
                (timer-start cap-timer)
@@ -101,13 +81,14 @@
                (sdl2:set-render-draw-color renderer 0 0 0 255)
                ;; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
                (sdl2:render-clear renderer)
-
+               
+               ;; キャラクタ移動
+               (move-character   player-char)
+               (change-direction player-char)
+               
                ;; レンダリング処理
-               (when event-flg
-                 (msg-view msg-window renderer frames tick-per-frame text-count
-                           :1st (aref *text-message-test* text-count 0)
-                           :2nd (aref *text-message-test* text-count 1)
-                           :3rd (aref *text-message-test* text-count 2)))
+               (with-slots (x-pos y-pos clip) player-char
+                 (tex-render player-img x-pos y-pos :clip clip))
                
                ;; 遅延処理
                (let ((time (timer-get-ticks cap-timer)))
@@ -116,6 +97,17 @@
 
                ;; フレーム数をインクリメント
                (frame-incf frames)
+
+               ;; アニメーション更新
+               (with-slots (clip move-flg) player-char
+                 (when move-flg
+                   (when (zerop (rem frames tick-per-frame))
+                     (cond ((or (= cur-sprite-frame 2) (= cur-sprite-frame 0))
+                            (setf prev-sprite-frame cur-sprite-frame)
+                            (setf cur-sprite-frame 1))
+                           ((= prev-sprite-frame 2) (setf cur-sprite-frame 0))
+                           ((= prev-sprite-frame 0) (setf cur-sprite-frame 2)))
+                     (setf (sdl2:rect-x clip) (* cur-sprite-frame (sdl2:rect-width clip))))))
                
                ;; レンダリングの結果を画面に反映
                (sdl2:render-present renderer))
