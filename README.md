@@ -47,3 +47,7 @@
 ## 12 選択肢ウィンドウ
 
 ![12](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/12.png)
+
+## 13 通行制限
+
+![13](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/13.png)
