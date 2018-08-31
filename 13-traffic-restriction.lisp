@@ -18,6 +18,9 @@
 ;; 画像ファイルへのパス
 (defparameter *img-player* "Material/char-obj-chip/player.png")
 
+;; マップフィールド画像のパス
+(defparameter *img-living-room* "Material/map-field/living-room.png")
+
 ;; フレーム数インクリメント
 (defmacro frame-incf (frame)
   `(if (= ,frame most-positive-fixnum)
@@ -52,10 +55,15 @@
 
 (defun main ()
   (with-window-renderer (window renderer)
-    (let* ((player-img  (tex-load-from-file renderer *img-player*))
-           (player-char (make-instance 'class-character
-                                       :clip    (sdl2:make-rect 0 0 32 32)
-                                       :location *null-map*))
+    (let* ((player-img      (tex-load-from-file renderer *img-player*))
+           (living-room-img (tex-load-from-file renderer *img-living-room*))
+           (player-char     (make-instance 'class-character
+                                           :clip    (sdl2:make-rect 0 0 32 32)
+                                           :x-index  10
+                                           :y-index  7
+                                           :x-pos    320
+                                           :y-pos    224
+                                           :location *living-room-map*))
            ;; アニメーション用変数
            (cur-sprite-frame  1) ; 現在表示している絵 (0:左, 1:真ん中, 2:右)
            (prev-sprite-frame 0) ; 一つ前に表示していた絵 (0:左, 1:真ん中, 2:右)
@@ -84,6 +92,9 @@
                (sdl2:set-render-draw-color renderer 0 0 0 255)
                ;; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
                (sdl2:render-clear renderer)
+
+               ;; マップフィールド画像レンダリング
+               (tex-render living-room-img 0 0)
                
                ;; キャラクタ移動
                (move-character   player-char)

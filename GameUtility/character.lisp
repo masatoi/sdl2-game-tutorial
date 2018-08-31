@@ -5,23 +5,26 @@
    (move
     :initarg  :move
     :initform 0)
-   (x-pos
-    :initarg  :x-pos
-    :initform 0)
-   (y-pos
-    :initarg  :y-pos
-    :initform 0)
    (x-index
     :initarg  :x-index
     :initform 0)
    (y-index
     :initarg  :y-index
     :initform 0)
+   (x-pos
+    :initarg  :x-pos
+    :initform 0)
+   (y-pos
+    :initarg  :y-pos
+    :initform 0)
    (direction
     :initarg  :direction
     :initform 0)
    (move-flg
     :initarg  :move-flg
+    :initform nil)
+   (location
+    :initarg  :location
     :initform nil)))
 
 (defmethod chk-key (obj keysym)
@@ -36,33 +39,37 @@
         (:scancode-right (setf direction 2))))))
 
 (defmethod move-character (obj)
-  (with-slots (move x-pos y-pos x-index y-index direction move-flg) obj
+  (with-slots (move x-index y-index x-pos y-pos direction move-flg location) obj
     (when move-flg
       (case direction
         ;; 下方向へ移動
-        (0 (if (> (incf move) 32)
-               (progn
-                 (setf move-flg nil)
-                 (incf y-index))
-               (incf y-pos)))
+        (0 (cond ((or (= y-index (- +map-height+ 1)) (= (aref location (+ y-index 1) x-index) 1))
+                  (setf move-flg nil)) ; 最端部か移動先が通行不可の場合、移動中フラグのクリアのみ行う
+                 ((> (incf move) 32)   ; 移動量を更新し、キャラクターが32ピクセル分移動したかチェック
+                  (setf move-flg nil)  ; 移動中フラグをクリア
+                  (incf y-index))      ; キャラの居るマップ座標を更新
+                 (t (incf y-pos))))    ; 現在座標を新更
         ;; 左方向へ移動
-        (1 (if (> (incf move) 32)
-               (progn
-                 (setf move-flg nil)
-                 (decf x-index))
-               (decf x-pos)))
+        (1 (cond ((or (= x-index 0) (= (aref location y-index (- x-index 1)) 1))
+                  (setf move-flg nil))
+                 ((> (incf move) 32)
+                  (setf move-flg nil)
+                  (decf x-index))
+                 (t (decf x-pos))))
         ;; 右方向へ移動
-        (2 (if (> (incf move) 32)
-               (progn
-                 (setf move-flg nil)
-                 (incf x-index))
-               (incf x-pos)))
+        (2 (cond ((or (= x-index (- +map-width+ 1)) (= (aref location y-index (+ x-index 1)) 1))
+                  (setf move-flg nil))
+                 ((> (incf move) 32)
+                  (setf move-flg nil)
+                  (incf x-index))
+                 (t (incf x-pos))))
         ;; 上方向へ移動
-        (3 (if (> (incf move) 32)
-               (progn
-                 (setf move-flg nil)
-                 (decf y-index))
-               (decf y-pos)))))))
+        (3 (cond ((or (= y-index 0) (= (aref location (- y-index 1) x-index) 1))
+                  (setf move-flg nil))
+                 ((> (incf move) 32)
+                  (setf move-flg nil)
+                  (decf y-index))
+                 (t (decf y-pos))))))))
 
 (defmethod change-direction (obj)
   (with-slots (clip direction) obj
