@@ -18,7 +18,7 @@
                         :title "SDL2 Tutorial 01" ; タイトル
                         :w     +screen-width+     ; 幅
                         :h     +screen-height+    ; 高さ
-                        :flags '(shown))          ; :shownや:hiddenなどのパラメータを設定できる
+                        :flags '(:shown))         ; :shownや:hiddenなどのパラメータを設定できる
        ;; ウィンドウの2Dレンダリングコンテキストを生成
        (sdl2:with-renderer (,renderer
                             ,window
