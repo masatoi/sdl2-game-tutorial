@@ -40,7 +40,7 @@
         (setf max len)))
     max))
 
-(defmethod select-window (obj renderer)
+(defmethod select-window (obj)
   (with-slots (syswin-tex cursor-tex font menu max-str-len menu-count cursor-x cursor-y) obj
     (let* ((width    (* max-str-len 30))
            (height   (* menu-count 40))

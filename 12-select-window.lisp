@@ -83,7 +83,7 @@
                (sdl2:render-clear renderer)                    ; 現在のレンダーターゲットを上記で設定した色で塗りつぶして消去
 
                ;; レンダリング処理
-               (select-window select-tex renderer)
+               (select-window select-tex)
                
                (sdl2:render-present renderer))                 ; レンダリングの結果を画面に反映
         ;; 終了イベント
