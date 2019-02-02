@@ -57,6 +57,3 @@
              (sdl2:render-present renderer))                 ; レンダリングの結果を画面に反映
       ;; 終了イベント
       (:quit () t))))
-
-;; main関数を呼び出して実行
-(main)
