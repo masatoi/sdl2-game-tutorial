@@ -3,7 +3,8 @@
   (:import-from :sdl2-game-tutorial/01-view-window)
   (:import-from :sdl2-game-tutorial/02-view-image)
   (:import-from :sdl2-game-tutorial/03-view-text)
-  (:import-from :sdl2-game-tutorial/04-view-2drendering))
+  (:import-from :sdl2-game-tutorial/04-view-2drendering)
+  (:import-from :sdl2-game-tutorial/05-input-key))
 (in-package :sdl2-game-tutorial/app)
 
 ;; 01：ウィンドウを表示する
@@ -17,3 +18,6 @@
 
 ;; 04：2Dレンダリング
 ;; (sdl2-game-tutorial/04-view-2drendering:main)
+
+;; 05：キー入力
+;; (sdl2-game-tutorial/05-input-key:main)
