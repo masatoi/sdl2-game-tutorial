@@ -1,9 +1,12 @@
 ;;; 07：システムウィンドウ表示
 
-;; SDL2ライブラリのロード
-(ql:quickload :sdl2)         ; SDL2ライブラリ
-(ql:quickload :sdl2-image)   ; 画像ファイル読み込み、描画関連のライブラリ
-(ql:quickload :sdl2-ttf)     ; フォントの描画関連のライブラリ
+(defpackage :sdl2-game-tutorial/07-system-window
+  (:use :cl)
+  (:import-from :sdl2)
+  (:import-from :sdl2-image)
+  (:import-from :sdl2-ttf)
+  (:export :main))
+(in-package :sdl2-game-tutorial/07-system-window)
 
 ;; 外部ファイルをロード
 (load "GameUtility/texture.lisp"    :external-format :utf-8)
@@ -64,6 +67,3 @@
                (sdl2:render-present renderer))                 ; レンダリングの結果を画面に反映
         ;; 終了イベント
         (:quit () t)))))
-
-;; main関数を呼び出して実行
-(main)
