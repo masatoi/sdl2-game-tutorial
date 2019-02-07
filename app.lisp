@@ -6,7 +6,8 @@
   (:import-from :sdl2-game-tutorial/04-view-2drendering)
   (:import-from :sdl2-game-tutorial/05-input-key)
   (:import-from :sdl2-game-tutorial/06-move-image)
-  (:import-from :sdl2-game-tutorial/07-system-window))
+  (:import-from :sdl2-game-tutorial/07-system-window)
+  (:import-from :sdl2-game-tutorial/08-fps-timer))
 (in-package :sdl2-game-tutorial/app)
 
 ;; 01：ウィンドウを表示する
@@ -30,3 +31,5 @@
 ;; 07：システムウィンドウ表示
 ;; (sdl2-game-tutorial/07-system-window:main)
 
+;; 08：FPSタイマー
+;; (sdl2-game-tutorial/08-fps-timer:main)
