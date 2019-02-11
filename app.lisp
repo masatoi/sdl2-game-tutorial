@@ -8,7 +8,8 @@
   (:import-from :sdl2-game-tutorial/06-move-image)
   (:import-from :sdl2-game-tutorial/07-system-window)
   (:import-from :sdl2-game-tutorial/08-fps-timer)
-  (:import-from :sdl2-game-tutorial/09-animation))
+  (:import-from :sdl2-game-tutorial/09-animation)
+  (:import-from :sdl2-game-tutorial/10-message-window))
 (in-package :sdl2-game-tutorial/app)
 
 ;; 01：ウィンドウを表示する
@@ -37,3 +38,7 @@
 
 ;; 09：アニメーション
 ;; (sdl2-game-tutorial/09-animation:main)
+
+;; 10：メッセージウィンドウ
+
+;; (sdl2-game-tutorial/10-message-window:main)
