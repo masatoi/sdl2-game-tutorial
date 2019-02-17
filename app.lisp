@@ -9,7 +9,8 @@
   (:import-from :sdl2-game-tutorial/07-system-window)
   (:import-from :sdl2-game-tutorial/08-fps-timer)
   (:import-from :sdl2-game-tutorial/09-animation)
-  (:import-from :sdl2-game-tutorial/10-message-window))
+  (:import-from :sdl2-game-tutorial/10-message-window)
+  (:import-from :sdl2-game-tutorial/11-character-operation))
 (in-package :sdl2-game-tutorial/app)
 
 ;; 01：ウィンドウを表示する
@@ -40,5 +41,8 @@
 ;; (sdl2-game-tutorial/09-animation:main)
 
 ;; 10：メッセージウィンドウ
-
 ;; (sdl2-game-tutorial/10-message-window:main)
+
+;; 11：キャラクター操作
+;; (sdl2-game-tutorial/11-character-operation:main)
+
