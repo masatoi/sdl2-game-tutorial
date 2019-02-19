@@ -11,7 +11,8 @@
   (:import-from :sdl2-game-tutorial/09-animation)
   (:import-from :sdl2-game-tutorial/10-message-window)
   (:import-from :sdl2-game-tutorial/11-character-operation)
-  (:import-from :sdl2-game-tutorial/12-select-window))
+  (:import-from :sdl2-game-tutorial/12-select-window)
+  (:import-from :sdl2-game-tutorial/13-traffic-restriction))
 (in-package :sdl2-game-tutorial/app)
 
 ;; 01：ウィンドウを表示する
@@ -49,3 +50,6 @@
 
 ;; 12：選択肢ウィンドウ
 ;; (sdl2-game-tutorial/12-select-window:main)
+
+;; 13：通行制限
+;; (sdl2-game-tutorial/13-traffic-restriction:main)
