@@ -15,41 +15,41 @@
   (:import-from :sdl2-game-tutorial/13-traffic-restriction))
 (in-package :sdl2-game-tutorial/app)
 
-;; 01¡§¥¦¥£¥ó¥É¥¦¤òÉ½¼¨¤¹¤ë
-; (sdl2-game-tutorial/01-view-window:main)
+;; 01ï¼šã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’è¡¨ç¤ºã™ã‚‹
+;; (sdl2-game-tutorial/01-view-window:main)
 
-;; 02¡§²èÁü¤òÉ½¼¨¤¹¤ë
+;; 02ï¼šç”»åƒã‚’è¡¨ç¤ºã™ã‚‹
 ;; (sdl2-game-tutorial/02-view-image:main)
 
-;; 03¡§¥Æ¥­¥¹¥È¤òÉ½¼¨¤¹¤ë
+;; 03ï¼šãƒ†ã‚­ã‚¹ãƒˆã‚’è¡¨ç¤ºã™ã‚‹
 ;; (sdl2-game-tutorial/03-view-text:main)
 
-;; 04¡§2D¥ì¥ó¥À¥ê¥ó¥°
+;; 04ï¼š2Dãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°
 ;; (sdl2-game-tutorial/04-view-2drendering:main)
 
-;; 05¡§¥­¡¼ÆşÎÏ
+;; 05ï¼šã‚­ãƒ¼å…¥åŠ›
 ;; (sdl2-game-tutorial/05-input-key:main)
 
-;; 06¡§²èÁü¤òÆ°¤«¤¹
+;; 06ï¼šç”»åƒã‚’å‹•ã‹ã™
 ;; (sdl2-game-tutorial/06-move-image:main)
 
-;; 07¡§¥·¥¹¥Æ¥à¥¦¥£¥ó¥É¥¦É½¼¨
+;; 07ï¼šã‚·ã‚¹ãƒ†ãƒ ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦è¡¨ç¤º
 ;; (sdl2-game-tutorial/07-system-window:main)
 
-;; 08¡§FPS¥¿¥¤¥Ş¡¼
+;; 08ï¼šFPSã‚¿ã‚¤ãƒãƒ¼
 ;; (sdl2-game-tutorial/08-fps-timer:main)
 
-;; 09¡§¥¢¥Ë¥á¡¼¥·¥ç¥ó
+;; 09ï¼šã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³
 ;; (sdl2-game-tutorial/09-animation:main)
 
-;; 10¡§¥á¥Ã¥»¡¼¥¸¥¦¥£¥ó¥É¥¦
+;; 10ï¼šãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦
 ;; (sdl2-game-tutorial/10-message-window:main)
 
-;; 11¡§¥­¥ã¥é¥¯¥¿¡¼Áàºî
+;; 11ï¼šã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼æ“ä½œ
 ;; (sdl2-game-tutorial/11-character-operation:main)
 
-;; 12¡§ÁªÂò»è¥¦¥£¥ó¥É¥¦
+;; 12ï¼šé¸æŠè‚¢ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦
 ;; (sdl2-game-tutorial/12-select-window:main)
 
-;; 13¡§ÄÌ¹ÔÀ©¸Â
+;; 13ï¼šé€šè¡Œåˆ¶é™
 ;; (sdl2-game-tutorial/13-traffic-restriction:main)
