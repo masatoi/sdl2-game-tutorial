@@ -6,4 +6,6 @@
     :depends-on ("sdl2"
                  "sdl2-image"
                  "sdl2-ttf"
-                 "sdl2-game-tutorial/app"))
+                 "sdl2-game-tutorial/boot"))
+
+(register-system-packages "sdl2-game-tutorial/boot" '(#:sdl2-game-tutorial))
