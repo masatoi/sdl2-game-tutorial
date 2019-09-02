@@ -19,6 +19,12 @@ $ ros install lispgames/cl-sdl2
 $ ros install Zulu-Inuoe/cl-sdl2-gfx
 ```
 
+### Install libffi
+
+```
+$ sudo apt install libffi-dev
+```
+
 ### Install dependent files
 
 ```
