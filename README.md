@@ -1,53 +1,92 @@
 # sdl2-game-tutorial
 
-## 01 ウィンドウ表示
+## Preparation
+
+### Install SDL2 Library
+
+```
+$ sudo apt install libsdl2-dev
+$ sudo apt install libsdl2-gfx-dev
+$ sudo apt install libsdl2-image-dev
+$ sudo apt install libsdl2-mixer-dev
+$ sudo apt install libsdl2-ttf-dev
+```
+
+### Install SDL2 Wrapper for Common Lisp
+
+```
+$ ros install lispgames/cl-sdl2
+$ ros install Zulu-Inuoe/cl-sdl2-gfx
+```
+
+### Install dependent files
+
+```
+$ ros install
+```
+
+## Usage
+
+```
+ros install
+```
+
+```
+(ql:quickload :sdl2-game-tutorial)
+```
+
+### 01 ウィンドウ表示
+
+```
+(sdl2-game-tutorial:start :id 1)
+```
 
 ![01](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/01.png)
 
-## 02 PNG画像表示
+### 02 PNG画像表示
 
 ![02](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/02.png)
 
-## 03 テキスト表示
+### 03 テキスト表示
 
 ![03](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/03.png)
 
-## 04 2Dレンダリング
+### 04 2Dレンダリング
 
 ![04](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/04.png)
 
-## 05 キー入力
+### 05 キー入力
 
 ![05](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/05.png)
 
-## 06 画像移動
+### 06 画像移動
 
 ![06](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/06.png)
 
-## 07 システムウィンドウ表示
+### 07 システムウィンドウ表示
 
 ![07](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/07.png)
 
-## 08 FPSタイマー
+### 08 FPSタイマー
 
 ![08](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/08.png)
 
-## 09 アニメーション
+### 09 アニメーション
 
 ![09](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/09.png)
 
-## 10 メッセージウィンドウ
+### 10 メッセージウィンドウ
 
 ![10](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/10.png)
 
-## 11 キャラクター操作
+### 11 キャラクター操作
 
 ![11](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/11.png)
 
-## 12 選択肢ウィンドウ
+### 12 選択肢ウィンドウ
 
 ![12](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/12.png)
 
-## 13 通行制限
+### 13 通行制限
 
 ![13](https://github.com/fireflower0/sdl2-game-tutorial/blob/master/img/13.png)
