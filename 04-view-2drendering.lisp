@@ -1,16 +1,10 @@
 ;;; 04：2Dレンダリング
 
-(defpackage :sdl2-game-tutorial/04-view-2drendering
-  (:use :cl)
-  (:import-from :sdl2)
-  (:import-from :sdl2-image)
-  (:import-from :sdl2-ttf)
-  (:export :main))
-(in-package :sdl2-game-tutorial/04-view-2drendering)
-
-;; ウィンドウのサイズ
-(defconstant +screen-width+  640) ; 幅
-(defconstant +screen-height+ 480) ; 高さ
+(defpackage #:sdl2-game-tutorial/04-view-2drendering
+  (:use #:cl
+        #:sdl2-game-tutorial/utils)
+  (:export #:main))
+(in-package #:sdl2-game-tutorial/04-view-2drendering)
 
 ;; 線を描画する
 (defun line-render (renderer)
@@ -64,34 +58,8 @@
     (sdl2:set-render-draw-color renderer 255 255 0 255)
     (sdl2:render-fill-rects renderer rects num)))
 
-;; SDL2ライブラリ初期化＆終了処理
-(defmacro with-window-renderer ((window renderer) &body body)
-  ;; SDLの初期化と終了時の処理をまとめて実行
-  `(sdl2:with-init (:video)
-     ;; ウィンドウ作成処理を実行
-     (sdl2:with-window (,window
-                        :title "SDL2 Tutorial 01" ; タイトル
-                        :w     +screen-width+     ; 幅
-                        :h     +screen-height+    ; 高さ
-                        :flags '(:shown))         ; :shownや:hiddenなどのパラメータを設定できる
-       ;; ウィンドウの2Dレンダリングコンテキストを生成
-       (sdl2:with-renderer (,renderer
-                            ,window
-                            :index -1
-                            ;; レンダリングコンテキストを生成するときに使われるフラグの種類
-                            ;; :software      : ソフトウェア レンダラー
-                            ;; :accelerated   : ハードウェア アクセラレーション
-                            ;; :presentvsync  : 更新周期と同期
-                            ;; :targettexture : テクスチャへのレンダリングに対応
-                            :flags '(:accelerated :presentvsync))
-         (sdl2-image:init '(:png)) ; sdl2-imageを初期化(扱う画像形式はPNG ※他にもJPGとTIFが使える)
-         (sdl2-ttf:init)           ; sdl2-ttfを初期化
-         ,@body
-         (sdl2-image:quit)         ; sdl2-image終了処理
-         (sdl2-ttf:quit)))))       ; sdl2-ttf終了処理
-
 (defun main ()
-  (with-window-renderer (window renderer)
+  (with-window-renderer (window renderer "SDL2 Tutorial 04")
     ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
     (sdl2:with-event-loop (:method :poll)
       ;; キーが押下されたときの処理

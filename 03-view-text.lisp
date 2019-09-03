@@ -12,7 +12,7 @@
 (defun main ()
   (with-window-renderer (window renderer "SDL2 Tutorial 03")
     (multiple-value-bind (texture width height)
-        (create-string-texture renderer *font-file-path* "こんにちは、世界！" #xFF #xFF #xFF 0)
+        (create-string-texture renderer *font-file-path* "こんにちは、世界！" :r 255 :g 255 :b 255)
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理

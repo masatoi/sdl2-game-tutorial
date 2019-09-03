@@ -41,14 +41,19 @@
          ;; sdl2-ttf終了処理
          (sdl2-ttf:quit)))))
 
-(defun create-image-texture (renderer image-file-path r g b)
+(defun create-image-texture (renderer
+                             image-file-path
+                             &key (r 0) (g 0) (b 0))
   (let* ((surface (sdl2-image:load-image image-file-path))
          (width (sdl2:surface-width surface))
          (height (sdl2:surface-height surface)))
     (sdl2:set-color-key surface :true (sdl2:map-rgb (sdl2:surface-format surface) r g b))
     (values (sdl2:create-texture-from-surface renderer surface) width height)))
 
-(defun create-string-texture (renderer font-file-path string r g b a)
+(defun create-string-texture (renderer
+                              font-file-path
+                              string
+                              &key (r 0) (g 0) (b 0) (a 0))
   (let* ((font (sdl2-ttf:open-font font-file-path 50))
          (surface (sdl2-ttf:render-utf8-solid font string r g b a))
          (width (sdl2:surface-width surface))

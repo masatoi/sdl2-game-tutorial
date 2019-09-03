@@ -13,7 +13,7 @@
   (with-window-renderer (window renderer "SDL2 Tutorial 02")
     ;; 画像ファイル読み込み、画像情報の取得などを行う
     (multiple-value-bind (texture width height)
-        (create-image-texture renderer *image-file-path* 0 0 0)
+        (create-image-texture renderer *image-file-path*)
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理
