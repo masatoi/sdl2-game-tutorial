@@ -2,7 +2,9 @@
   (:use #:cl)
   (:export #:with-window-renderer
            #:*screen-width*
-           #:*screen-height*))
+           #:*screen-height*
+           #:create-image-texture
+           #:create-string-texture))
 (in-package #:sdl2-game-tutorial/utils)
 
 ;; ウィンドウのサイズ
@@ -38,3 +40,18 @@
          (sdl2-image:quit)
          ;; sdl2-ttf終了処理
          (sdl2-ttf:quit)))))
+
+(defun create-image-texture (renderer image-file-path r g b)
+  (let* ((surface (sdl2-image:load-image image-file-path))
+         (width (sdl2:surface-width surface))
+         (height (sdl2:surface-height surface)))
+    (sdl2:set-color-key surface :true (sdl2:map-rgb (sdl2:surface-format surface) r g b))
+    (values (sdl2:create-texture-from-surface renderer surface) width height)))
+
+(defun create-string-texture (renderer font-file-path string r g b a)
+  (let* ((font (sdl2-ttf:open-font font-file-path 50))
+         (surface (sdl2-ttf:render-utf8-solid font string r g b a))
+         (width (sdl2:surface-width surface))
+         (height (sdl2:surface-height surface))
+         (texture (sdl2:create-texture-from-surface renderer surface)))
+    (values texture width height)))

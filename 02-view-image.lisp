@@ -9,17 +9,11 @@
 ;; 画像ファイルへのパス
 (defparameter *image-file-path* "Material/graphics/picture/cat.png")
 
-(defun create-texture (renderer surface)
-  (sdl2:set-color-key surface :true (sdl2:map-rgb (sdl2:surface-format surface) 0 0 0))
-  (sdl2:create-texture-from-surface renderer surface))
-
 (defun main ()
   (with-window-renderer (window renderer "SDL2 Tutorial 02")
     ;; 画像ファイル読み込み、画像情報の取得などを行う
-    (let* ((surface (sdl2-image:load-image *image-file-path*))
-           (width (sdl2:surface-width surface))
-           (height (sdl2:surface-height surface))
-           (texture (create-texture renderer surface)))
+    (multiple-value-bind (texture width height)
+        (create-image-texture renderer *image-file-path* 0 0 0)
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理

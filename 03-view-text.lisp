@@ -11,11 +11,8 @@
 
 (defun main ()
   (with-window-renderer (window renderer "SDL2 Tutorial 03")
-    (let* ((font (sdl2-ttf:open-font *font-file-path* 50)) ; フォントファイルを読み込む(このとき、フォントサイズも指定)
-           (surface (sdl2-ttf:render-utf8-solid font "こんにちは、世界！" #xFF #xFF #xFF 0))
-           (width (sdl2:surface-width surface))
-           (height (sdl2:surface-height surface))
-           (texture (sdl2:create-texture-from-surface renderer surface)))
+    (multiple-value-bind (texture width height)
+        (create-string-texture renderer *font-file-path* "こんにちは、世界！" #xFF #xFF #xFF 0)
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理
