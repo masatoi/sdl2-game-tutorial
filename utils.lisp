@@ -4,7 +4,8 @@
            #:*screen-width*
            #:*screen-height*
            #:create-image-texture
-           #:create-string-texture))
+           #:create-string-texture
+           #:system-window-render))
 (in-package #:sdl2-game-tutorial/utils)
 
 ;; ウィンドウのサイズ
@@ -60,3 +61,57 @@
          (height (sdl2:surface-height surface))
          (texture (sdl2:create-texture-from-surface renderer surface)))
     (values texture width height)))
+
+;; システムウィンドウレンダリング処理
+(defun system-window-render (renderer
+                             texture
+                             width
+                             height
+                             &key (x 25) (y 345) (w 590) (h 110) (alpha 255))
+  (let* ((w2 (/ width  3))
+         (h2 (/ height 3))
+         (w3 (- w (* w2 2)))
+         (h3 (- h (* h2 2)))
+         (x2 (+ x (- w w2)))
+         (y2 (+ y (- h h2)))
+         (x3 (+ x w2))
+         (y3 (+ y h2))
+         (x4 (+ x (- w w2)))
+         (y4 (+ y (- h h2)))
+         (r  (- width (* w2 3)))
+         (c  (- width (* w2 2)))
+         (l  (- width (* w2 1)))
+         (upper-left-s   (sdl2:make-rect r  r  w2 h2))
+         (upper-left-d   (sdl2:make-rect x  y  w2 h2))
+         (upper-right-s  (sdl2:make-rect l  r  w2 h2))
+         (upper-right-d  (sdl2:make-rect x2 y  w2 h2))
+         (bottom-left-s  (sdl2:make-rect r  l  w2 h2))
+         (bottom-left-d  (sdl2:make-rect x  y2 w2 h2))
+         (bottom-right-s (sdl2:make-rect l  l  w2 h2))
+         (bottom-right-d (sdl2:make-rect x2 y2 w2 h2))
+         (upper-s        (sdl2:make-rect c  r  w2 h2))
+         (upper-d        (sdl2:make-rect x3 y  w3 h2))
+         (bottom-s       (sdl2:make-rect c  l  w2 h2))
+         (bottom-d       (sdl2:make-rect x3 y4 w3 h2))
+         (left-s         (sdl2:make-rect r  c  w2 h2))
+         (left-d         (sdl2:make-rect x  y3 w2 h3))
+         (right-s        (sdl2:make-rect l  c  w2 h2))
+         (right-d        (sdl2:make-rect x4 y3 w2 h3))
+         (center-s       (sdl2:make-rect c  c  w2 h2))
+         (center-d       (sdl2:make-rect x3 y3 w3 h3)))
+    (when alpha
+      (sdl2:set-texture-blend-mode texture :blend)
+      (sdl2:set-texture-alpha-mod  texture alpha))
+    ;; Four Corners
+    (sdl2:render-copy renderer texture :source-rect upper-left-s :dest-rect upper-left-d)
+    (sdl2:render-copy renderer texture :source-rect upper-right-s :dest-rect upper-right-d)
+    (sdl2:render-copy renderer texture :source-rect bottom-left-s :dest-rect bottom-left-d)
+    (sdl2:render-copy renderer texture :source-rect bottom-right-s :dest-rect bottom-right-d)
+    ;; Upper/Bottom
+    (sdl2:render-copy renderer texture :source-rect upper-s :dest-rect upper-d)
+    (sdl2:render-copy renderer texture :source-rect bottom-s :dest-rect bottom-d)
+    ;; Right/Left
+    (sdl2:render-copy renderer texture :source-rect left-s :dest-rect left-d)
+    (sdl2:render-copy renderer texture :source-rect right-s :dest-rect right-d)
+    ;; Center
+    (sdl2:render-copy renderer texture :source-rect center-s :dest-rect center-d)))
