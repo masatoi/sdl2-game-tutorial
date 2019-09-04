@@ -5,7 +5,8 @@
            #:*screen-height*
            #:create-image-texture
            #:create-string-texture
-           #:system-window-render))
+           #:system-window-render
+           #:frame-incf))
 (in-package #:sdl2-game-tutorial/utils)
 
 ;; ウィンドウのサイズ
@@ -115,3 +116,9 @@
     (sdl2:render-copy renderer texture :source-rect right-s :dest-rect right-d)
     ;; Center
     (sdl2:render-copy renderer texture :source-rect center-s :dest-rect center-d)))
+
+;; フレーム数インクリメント
+(defmacro frame-incf (frame)
+  `(if (= ,frame most-positive-fixnum)
+       (setf ,frame 1)
+       (incf ,frame)))
