@@ -1,61 +1,31 @@
 ;;; 09：アニメーション
 
-(defpackage :sdl2-game-tutorial/09-animation
-  (:use :cl)
-  (:import-from :sdl2)
-  (:import-from :sdl2-image)
-  (:import-from :sdl2-ttf)
-  (:export :main))
-(in-package :sdl2-game-tutorial/09-animation)
-
-;; 外部ファイルをロード
-(load "GameUtility/texture.lisp"   :external-format :utf-8)
-(load "GameUtility/fps-timer.lisp" :external-format :utf-8)
-
-;; ウィンドウのサイズ
-(defconstant +screen-width+  640) ; 幅
-(defconstant +screen-height+ 480) ; 高さ
+(defpackage #:sdl2-game-tutorial/09-animation
+  (:use #:cl
+        #:sdl2-game-tutorial/utils)
+  (:import-from #:sdl2-game-tutorial/fps
+                #:fps
+                #:timer-start
+                #:timer-get-ticks)
+  (:export #:main))
+(in-package #:sdl2-game-tutorial/09-animation)
 
 ;; 画像ファイルへのパス
 (defparameter *img-player* "Material/char-obj-chip/player.png")
 (defparameter *img-trap*   "Material/char-obj-chip/trap.png")
 
-;; フレーム数インクリメント
-(defmacro frame-incf (frame)
-  `(if (= ,frame most-positive-fixnum)
-       (setf ,frame 1)
-       (incf ,frame)))
-
-;; SDL2ライブラリ初期化＆終了処理
-(defmacro with-window-renderer ((window renderer) &body body)
-  ;; SDLの初期化と終了時の処理をまとめて実行
-  `(sdl2:with-init (:video)
-     ;; ウィンドウ作成処理を実行
-     (sdl2:with-window (,window
-                        :title "SDL2 Tutorial 01" ; タイトル
-                        :w     +screen-width+     ; 幅
-                        :h     +screen-height+    ; 高さ
-                        :flags '(:shown))         ; :shownや:hiddenなどのパラメータを設定できる
-       ;; ウィンドウの2Dレンダリングコンテキストを生成
-       (sdl2:with-renderer (,renderer
-                            ,window
-                            :index -1
-                            ;; レンダリングコンテキストを生成するときに使われるフラグの種類
-                            ;; :software      : ソフトウェア レンダラー
-                            ;; :accelerated   : ハードウェア アクセラレーション
-                            ;; :presentvsync  : 更新周期と同期
-                            ;; :targettexture : テクスチャへのレンダリングに対応
-                            :flags '(:accelerated :presentvsync))
-         (sdl2-image:init '(:png)) ; sdl2-imageを初期化(扱う画像形式はPNG ※他にもJPGとTIFが使える)
-         (sdl2-ttf:init)           ; sdl2-ttfを初期化
-         ,@body
-         (sdl2-image:quit)         ; sdl2-image終了処理
-         (sdl2-ttf:quit)))))       ; sdl2-ttf終了処理
+(defun tex-render (renderer texture x y clip)
+  (sdl2:render-copy renderer
+                    texture
+                    :source-rect clip
+                    :dest-rect (sdl2:make-rect x y
+                                               (sdl2:rect-width clip)
+                                               (sdl2:rect-height clip))))
 
 (defun main ()
-  (with-window-renderer (window renderer)
-    (let* ((player-img     (tex-load-from-file renderer *img-player*))
-           (trap-img       (tex-load-from-file renderer *img-trap*))
+  (with-window-renderer (window renderer "SDL2 Tutorial 09")
+    (let* ((player-texture nil) (player-width 0) (player-height 0)
+           (trap-texture nil) (trap-width 0) (trap-height 0)
            ;; 3つ並んだ絵の内、左の絵を選択
            ;; 歩行グラフィックは、縦横32×32
            ;; マップ配置アニメオブジェクトは、縦横48×48
@@ -75,14 +45,22 @@
            (current-sprite-frame 1) ; 現在表示している絵 (0:左, 1:真ん中, 2:右)
            (prev-sprite-frame 0)    ; 一つ前に表示していた絵 (0:左, 1:真ん中, 2:右)
            ;; FPS用変数
-           (fps-timer      (make-instance 'fps-timer))
-           (cap-timer      (make-instance 'fps-timer))
+           (fps-timer      (make-instance 'fps))
+           (cap-timer      (make-instance 'fps))
            (fixed-fps      60)
            (tick-per-frame (floor 1000 fixed-fps))
            (frames         1))
-
+      (multiple-value-bind (texture width height)
+          (create-image-texture renderer *img-player*)
+        (setf player-texture texture
+              player-width width
+              player-height height))
+      (multiple-value-bind (texture width height)
+          (create-image-texture renderer *img-trap*)
+        (setf trap-texture texture
+              trap-width width
+              trap-height height))
       (timer-start fps-timer)
-      
       ;; イベントループ(この中にキー操作時の動作や各種イベントを記述していく)
       (sdl2:with-event-loop (:method :poll)
         ;; キーが押下されたときの処理
@@ -101,20 +79,20 @@
 
                ;; レンダリング処理
                ;; 歩行グラフィック表示
-               (tex-render player-img 240 200 :clip clip1)
-               (tex-render player-img 272 200 :clip clip2)
-               (tex-render player-img 304 200 :clip clip3)
-               (tex-render player-img 336 200 :clip clip4)
+               (tex-render renderer player-texture 240 200 clip1)
+               (tex-render renderer player-texture 272 200 clip2)
+               (tex-render renderer player-texture 304 200 clip3)
+               (tex-render renderer player-texture 336 200 clip4)
 
                ;; マップ配置アニメオブジェクト表示
-               (tex-render trap-img 180 150 :clip tclip1)
-               (tex-render trap-img 130 188 :clip tclip2)
-               (tex-render trap-img 130 246 :clip tclip3)
-               (tex-render trap-img 180 280 :clip tclip4)
-               (tex-render trap-img 380 150 :clip tclip5)
-               (tex-render trap-img 430 188 :clip tclip6)
-               (tex-render trap-img 430 246 :clip tclip7)
-               (tex-render trap-img 380 280 :clip tclip8)
+               (tex-render renderer trap-texture 180 150 tclip1)
+               (tex-render renderer trap-texture 130 188 tclip2)
+               (tex-render renderer trap-texture 130 246 tclip3)
+               (tex-render renderer trap-texture 180 280 tclip4)
+               (tex-render renderer trap-texture 380 150 tclip5)
+               (tex-render renderer trap-texture 430 188 tclip6)
+               (tex-render renderer trap-texture 430 246 tclip7)
+               (tex-render renderer trap-texture 380 280 tclip8)
 
                ;; 遅延処理
                (let ((time (timer-get-ticks cap-timer)))
