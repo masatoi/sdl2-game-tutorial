@@ -122,3 +122,19 @@
   `(if (= ,frame most-positive-fixnum)
        (setf ,frame 1)
        (incf ,frame)))
+
+(defun message-window-render (renderer
+                              image-texture image-width image-height
+                              string-texture string-width string-height)
+  (let (;; ベースウィンドウのX/Y座標及び、幅/高さ
+        (base-win-x 25) (base-win-y 345) (base-win-w 590) (base-win-h 110)
+        ;; テキスト表示位置
+        (text-x-pos 40) (1st-line 360) (2nd-line 390) (3rd-line 420)
+        ;; ポーズアニメーション
+        (pause-x 305) (pause-y 445) (pause-frame 6)
+        ;;
+        (max-text-num 0)
+        (text-message-test (make-array `(1 3)
+                                       :initial-element nil
+                                       :adjustable t)))
+    ))

@@ -2,20 +2,8 @@
 
 (defpackage :sdl2-game-tutorial/10-message-window
   (:use :cl)
-  (:import-from :sdl2)
-  (:import-from :sdl2-image)
-  (:import-from :sdl2-ttf)
   (:export :main))
 (in-package :sdl2-game-tutorial/10-message-window)
-
-;; 外部ファイルをロード
-(load "GameUtility/texture.lisp"    :external-format :utf-8)
-(load "GameUtility/fps-timer.lisp"  :external-format :utf-8)
-(load "GameUtility/msg-window.lisp" :external-format :utf-8)
-
-;; ウィンドウのサイズ
-(defconstant +screen-width+  640) ; 幅
-(defconstant +screen-height+ 480) ; 高さ
 
 ;; 画像ファイルへのパス
 (defparameter *img-syswin* "Material/graphics/system/systemwindow.png")
@@ -24,40 +12,8 @@
 ;; フォントファイルへのパス
 (defparameter *font-file-path* "Material/fonts/ipaexg.ttf")
 
-;; フレーム数インクリメント
-(defmacro frame-incf (frame)
-  `(if (= ,frame most-positive-fixnum)
-       (setf ,frame 1)
-       (incf ,frame)))
-
-;; SDL2ライブラリ初期化＆終了処理
-(defmacro with-window-renderer ((window renderer) &body body)
-  ;; SDLの初期化と終了時の処理をまとめて実行
-  `(sdl2:with-init (:video)
-     ;; ウィンドウ作成処理を実行
-     (sdl2:with-window (,window
-                        :title "SDL2 Tutorial 01" ; タイトル
-                        :w     +screen-width+     ; 幅
-                        :h     +screen-height+    ; 高さ
-                        :flags '(:shown))         ; :shownや:hiddenなどのパラメータを設定できる
-       ;; ウィンドウの2Dレンダリングコンテキストを生成
-       (sdl2:with-renderer (,renderer
-                            ,window
-                            :index -1
-                            ;; レンダリングコンテキストを生成するときに使われるフラグの種類
-                            ;; :software      : ソフトウェア レンダラー
-                            ;; :accelerated   : ハードウェア アクセラレーション
-                            ;; :presentvsync  : 更新周期と同期
-                            ;; :targettexture : テクスチャへのレンダリングに対応
-                            :flags '(:accelerated :presentvsync))
-         (sdl2-image:init '(:png)) ; sdl2-imageを初期化(扱う画像形式はPNG ※他にもJPGとTIFが使える)
-         (sdl2-ttf:init)           ; sdl2-ttfを初期化
-         ,@body
-         (sdl2-image:quit)         ; sdl2-image終了処理
-         (sdl2-ttf:quit)))))       ; sdl2-ttf終了処理
-
 (defun main ()
-  (with-window-renderer (window renderer)
+  (with-window-renderer (window renderer "SDL2 Tutorial 10")
     ;; 画像ファイル読み込み、画像情報の取得などを行う
     (let* ((msg-window     (make-instance 'class-msgwin
                                           :syswin-tex (tex-load-from-file renderer *img-syswin*)
