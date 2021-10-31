@@ -7,7 +7,7 @@
 (in-package #:sdl2-game-tutorial/02-view-image)
 
 ;; 画像ファイルへのパス
-(defparameter *image-file-path* "Material/graphics/picture/cat.png")
+(defparameter *image-file-path* (expand-path "Material/graphics/picture/cat.png"))
 
 (defun main ()
   (with-window-renderer (window renderer "SDL2 Tutorial 02")

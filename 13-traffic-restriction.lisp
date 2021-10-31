@@ -5,24 +5,25 @@
   (:import-from :sdl2)
   (:import-from :sdl2-image)
   (:import-from :sdl2-ttf)
+  (:import-from :sdl2-game-tutorial/utils :expand-path :load-file)
   (:export :main))
 (in-package :sdl2-game-tutorial/13-traffic-restriction)
 
 ;; 外部ファイルをロード
-(load "GameUtility/texture.lisp"   :external-format :utf-8)
-(load "GameUtility/fps-timer.lisp" :external-format :utf-8)
-(load "GameUtility/map-field.lisp" :external-format :utf-8)
-(load "GameUtility/character.lisp" :external-format :utf-8)
+(load-file #P"GameUtility/texture.lisp")
+(load-file #P"GameUtility/fps-timer.lisp")
+(load-file #P"GameUtility/map-field.lisp")
+(load-file #P"GameUtility/character.lisp")
 
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
 ;; 画像ファイルへのパス
-(defparameter *img-player* "Material/char-obj-chip/player.png")
+(defparameter *img-player* (expand-path "Material/char-obj-chip/player.png"))
 
 ;; マップフィールド画像のパス
-(defparameter *img-living-room* "Material/map-field/living-room.png")
+(defparameter *img-living-room* (expand-path "Material/map-field/living-room.png"))
 
 ;; フレーム数インクリメント
 (defmacro frame-incf (frame)

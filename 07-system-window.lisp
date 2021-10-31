@@ -7,7 +7,7 @@
 (in-package #:sdl2-game-tutorial/07-system-window)
 
 ;; 画像ファイルへのパス
-(defparameter *image-file-path* "Material/graphics/system/systemwindow.png")
+(defparameter *image-file-path* (expand-path "Material/graphics/system/systemwindow.png"))
 
 (defun main ()
   (with-window-renderer (window renderer "SDL2 Tutorial 07")

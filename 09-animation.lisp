@@ -11,8 +11,8 @@
 (in-package #:sdl2-game-tutorial/09-animation)
 
 ;; 画像ファイルへのパス
-(defparameter *img-player* "Material/char-obj-chip/player.png")
-(defparameter *img-trap*   "Material/char-obj-chip/trap.png")
+(defparameter *img-player* (expand-path "Material/char-obj-chip/player.png"))
+(defparameter *img-trap*   (expand-path "Material/char-obj-chip/trap.png"))
 
 (defun tex-render (renderer texture x y clip)
   (sdl2:render-copy renderer

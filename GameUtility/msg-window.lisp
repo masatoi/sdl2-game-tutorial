@@ -16,7 +16,7 @@
 (defparameter *pause-frame* 6)
 
 ;; テキストファイルへのパス
-(defparameter *text-file-path* "Material/text/message-text.txt")
+(defparameter *text-file-path* (expand-path "Material/text/message-text.txt"))
 
 ;; 最大テキストメッセージ数
 (defparameter *max-text-num* 0)

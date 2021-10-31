@@ -6,7 +6,9 @@
            #:create-image-texture
            #:create-string-texture
            #:system-window-render
-           #:frame-incf))
+           #:frame-incf
+           #:expand-path
+           #:load-file))
 (in-package #:sdl2-game-tutorial/utils)
 
 ;; ウィンドウのサイズ
@@ -138,3 +140,11 @@
                                        :initial-element nil
                                        :adjustable t)))
     ))
+
+(defun expand-path (relative-path)
+  (merge-pathnames
+   relative-path
+   (asdf:system-source-directory :sdl2-game-tutorial)))
+
+(defun load-file (relative-path)
+  (load (expand-path relative-path) :external-format :utf-8))

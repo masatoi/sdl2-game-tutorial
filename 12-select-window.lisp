@@ -5,24 +5,25 @@
   (:import-from :sdl2)
   (:import-from :sdl2-image)
   (:import-from :sdl2-ttf)
+  (:import-from :sdl2-game-tutorial/utils :expand-path :load-file)
   (:export :main))
 (in-package :sdl2-game-tutorial/12-select-window)
 
 ;; 外部ファイルをロード
-(load "GameUtility/texture.lisp"       :external-format :utf-8)
-(load "GameUtility/msg-window.lisp"    :external-format :utf-8)
-(load "GameUtility/select-window.lisp" :external-format :utf-8)
+(load-file #P"GameUtility/texture.lisp")
+(load-file #P"GameUtility/msg-window.lisp")
+(load-file #P"GameUtility/select-window.lisp")
 
 ;; ウィンドウのサイズ
 (defconstant +screen-width+  640) ; 幅
 (defconstant +screen-height+ 480) ; 高さ
 
 ;; 画像ファイルへのパス
-(defparameter *img-system* "Material/graphics/system/systemwindow.png")
-(defparameter *img-cursor* "Material/graphics/system/cursor.png")
+(defparameter *img-system* (expand-path "Material/graphics/system/systemwindow.png"))
+(defparameter *img-cursor* (expand-path "Material/graphics/system/cursor.png"))
 
 ;; フォントファイルへのパス
-(defparameter *font-file-path* "Material/fonts/ipaexg.ttf")
+(defparameter *font-file-path* (expand-path "Material/fonts/ipaexg.ttf"))
 
 ;; SDL2ライブラリ初期化＆終了処理
 (defmacro with-window-renderer ((window renderer) &body body)

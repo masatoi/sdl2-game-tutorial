@@ -7,7 +7,7 @@
 (in-package #:sdl2-game-tutorial/03-view-text)
 
 ;; フォントファイルへのパス
-(defparameter *font-file-path* "Material/fonts/ipaexg.ttf")
+(defparameter *font-file-path* (expand-path "Material/fonts/ipaexg.ttf"))
 
 (defun main ()
   (with-window-renderer (window renderer "SDL2 Tutorial 03")

@@ -1,16 +1,17 @@
 ;;; 10：メッセージウィンドウ
 
 (defpackage :sdl2-game-tutorial/10-message-window
-  (:use :cl)
+  (:use #:cl
+        #:sdl2-game-tutorial/utils)
   (:export :main))
 (in-package :sdl2-game-tutorial/10-message-window)
 
 ;; 画像ファイルへのパス
-(defparameter *img-syswin* "Material/graphics/system/systemwindow.png")
-(defparameter *img-pause*  "Material/graphics/system/text-pause.png")
+(defparameter *img-syswin* (expand-path "Material/graphics/system/systemwindow.png"))
+(defparameter *img-pause*  (expand-path "Material/graphics/system/text-pause.png"))
 
 ;; フォントファイルへのパス
-(defparameter *font-file-path* "Material/fonts/ipaexg.ttf")
+(defparameter *font-file-path* (expand-path "Material/fonts/ipaexg.ttf"))
 
 (defun main ()
   (with-window-renderer (window renderer "SDL2 Tutorial 10")
